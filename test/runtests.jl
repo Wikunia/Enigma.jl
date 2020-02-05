@@ -55,6 +55,6 @@ end
     set_rotors!(enigma, 1,2,3)
     set_rotor_positions!(enigma, 3,9,10)
     set_ukw!(enigma, 2)
-    setting = "AB BC"
+    setting = "AB CB"
     @test_throws ErrorException set_plugboard!(enigma, setting)
 end
