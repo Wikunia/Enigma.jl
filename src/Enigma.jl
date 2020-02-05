@@ -9,6 +9,7 @@ mutable struct Rotor
 end
 
 mutable struct EnigmaMachine
+    plugboard       :: Vector{Int}
     rotors          :: Tuple{Rotor,Rotor,Rotor}
     ukw             :: Vector{Int}
 end
@@ -49,7 +50,7 @@ function EnigmaMachine(r1::Int, r2::Int, r3::Int, ukw::Int; p1=1, p2=1, p3=1)
     rotor_2 = Rotor(2, possible_rotors[r2,:], p2, rotation_points[r2])
     rotor_3 = Rotor(3, possible_rotors[r3,:], p3, rotation_points[r3])
 
-    return EnigmaMachine((rotor_1,rotor_2,rotor_3), possible_ukw[ukw,:])
+    return EnigmaMachine(collect(1:26), (rotor_1,rotor_2,rotor_3), possible_ukw[ukw,:])
 end
 
 function set_rotors!(enigma::EnigmaMachine, r1, r2, r3)
@@ -59,7 +60,7 @@ function set_rotors!(enigma::EnigmaMachine, r1, r2, r3)
 end
 
 function set_ukw!(enigma::EnigmaMachine, ukw)
-    enigma = EnigmaMachine(enigma.rotors, possible_ukw[ukw,:])
+    enigma = EnigmaMachine(enigma.plugboard, enigma.rotors, possible_ukw[ukw,:])
 end
 
 function set_rotor_positions!(enigma::EnigmaMachine, p1, p2, p3)
@@ -69,10 +70,27 @@ function set_rotor_positions!(enigma::EnigmaMachine, p1, p2, p3)
     rotor_1.position = p1
     rotor_2.position = p2
     rotor_3.position = p3
-    enigma = EnigmaMachine((rotor_1,rotor_2,rotor_3), enigma.ukw)
+    enigma = EnigmaMachine(enigma.plugboard, (rotor_1,rotor_2,rotor_3), enigma.ukw)
 end
 
-function step_rotors!(enigma)
+function set_plugboard!(enigma::EnigmaMachine, setting::String)
+    parts = split(setting, " ") 
+    for part in parts 
+        from_letter, to_letter = part[1], part[2]
+        from = Int(uppercase(from_letter))-64
+        to = Int(uppercase(to_letter))-64
+        if enigma.plugboard[from] != from
+            error("$from_letter already connected to: ", Char(enigma.plugboard[from]+64))
+        end
+        if enigma.plugboard[to] != to
+            error("$to_letter already connected to: ", Char(enigma.plugboard[to]+64))
+        end
+        enigma.plugboard[from] = to
+        enigma.plugboard[to] = from
+    end
+end
+
+function step_rotors!(enigma::EnigmaMachine)
     # right most rotor
     enigma.rotors[3].position += 1
     enigma.rotors[3].position %= 26
@@ -102,6 +120,7 @@ end
 
 function encode_single(enigma::EnigmaMachine, c::Char)
     number = Int(uppercase(c))-64
+    number = enigma.plugboard[number]
     step_rotors!(enigma)
     for i=3:-1:1
         r = enigma.rotors[i]
@@ -111,6 +130,7 @@ function encode_single(enigma::EnigmaMachine, c::Char)
     for r in enigma.rotors
         number = index_connected_to(r, number; backward=true)
     end
+    number = enigma.plugboard[number]
     return Char(number+64)
 end
 
@@ -127,5 +147,5 @@ function decode(enigma::EnigmaMachine, s::String)
     return encode(enigma, s)
 end
 
-export EnigmaMachine, encode, decode, set_rotors!, set_rotor_positions!, set_ukw!
+export EnigmaMachine, encode, decode, set_rotors!, set_rotor_positions!, set_ukw!, set_plugboard!
 end 
