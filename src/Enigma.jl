@@ -74,7 +74,9 @@ function set_rotor_positions!(enigma::EnigmaMachine, p1, p2, p3)
 end
 
 function set_plugboard!(enigma::EnigmaMachine, setting::Vector{Tuple{Int,Int}})
-    enigma.plugboard = collect(1:26)
+    for i=1:26
+        enigma.plugboard[i] = i
+    end
     for plug in setting
         enigma.plugboard[plug[1]] = plug[2]
         enigma.plugboard[plug[2]] = plug[1]
@@ -82,7 +84,9 @@ function set_plugboard!(enigma::EnigmaMachine, setting::Vector{Tuple{Int,Int}})
 end
 
 function set_plugboard!(enigma::EnigmaMachine, setting::String)
-    enigma.plugboard = collect(1:26)
+    for i=1:26
+        enigma.plugboard[i] = i
+    end
     setting == "" && return
     parts = split(setting, " ") 
     for part in parts 

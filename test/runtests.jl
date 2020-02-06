@@ -103,3 +103,46 @@ end
     @test encoded == "LHJRY PFESX YIPQV UCIRC QVYIV QYUUA KLRVN PQWQJ HOJNF QZBYM XYMOO NDONW IELFM ICEXZ FWBVO DSQFX"
 end
 end
+
+@testset "Bombe" begin
+@testset "Cracking given all but plugboard/hint pos" begin
+    crack_message = "VZEKL OYDBD SFFYD LZQVS HAWVP BGAMY ATKPW T"
+    hint = "message"
+    bombe = BombeMachine(crack_message, hint)
+    set_possible_rotors!(bombe, 1,2,3)
+    set_possible_rotor_positions!(bombe, 1,1,1)
+    set_possible_ukws!(bombe, 1:1)
+    enigmas = run_cracking(bombe; log=false)
+    found = false
+    correct_message = enigma_styled_text("This is a test message for testing the Bombe")
+    
+    for enigma in enigmas
+        encoded = encode(enigma, crack_message)
+        if encoded == correct_message
+            found = true
+            break
+        end
+    end
+    @test found === true
+
+    # different rotors and positions 
+    crack_message = "QRTUV RQMHR GTBJU NVXAN OPHTM BZAHZ YFKUL CRVRY MLTVW KRXIH EAWXJ "
+    hint = "message"
+    bombe = BombeMachine(crack_message, hint)
+    set_possible_rotors!(bombe, 3,2,1)
+    set_possible_rotor_positions!(bombe, 4,7,8)
+    set_possible_ukws!(bombe, 1)
+    enigmas = run_cracking(bombe; log=false)
+    found = false
+    correct_message = enigma_styled_text("A long long message with no real meaning but it is important to test")
+    
+    for enigma in enigmas
+        encoded = encode(enigma, crack_message)
+        if encoded == correct_message
+            found = true
+            break
+        end
+    end
+    @test found === true
+end
+end
