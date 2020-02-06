@@ -151,12 +151,16 @@ function encode(enigma::EnigmaMachine, s::String)
     for c in s
         result *= encode_single(enigma, c)
     end
-    return result
+    return enigma_styled_text(result)
 end
 
 function decode(enigma::EnigmaMachine, s::String)
     return encode(enigma, s)
 end
 
-export EnigmaMachine, encode, decode, set_rotors!, set_rotor_positions!, set_ukw!, set_plugboard!
+function enigma_styled_text(text::String)
+    return string(strip(replace(uppercase(replace(text, r"[^a-zA-Z]"=>"")), r"(.{5})" => s"\1 ")))
+end
+
+export EnigmaMachine, encode, decode, set_rotors!, set_rotor_positions!, set_ukw!, set_plugboard!, enigma_styled_text
 end 
