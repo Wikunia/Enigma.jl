@@ -14,7 +14,7 @@ mutable struct EnigmaMachine
     ukw             :: Vector{Int}
 end
 
-include("Bomb.jl")
+include("Bombe.jl")
 
 function EnigmaMachine()
     return EnigmaMachine(1,2,3,1)
@@ -137,8 +137,7 @@ function index_connected_to(rotor, index; backward=false)
     end
 end
 
-function encode_single(enigma::EnigmaMachine, c::Char)
-    number = Int(c)-64
+function encode_single_idx_to_idx(enigma::EnigmaMachine, number::Int)
     number = enigma.plugboard[number]
     step_rotors!(enigma)
     for i=3:-1:1
@@ -150,6 +149,12 @@ function encode_single(enigma::EnigmaMachine, c::Char)
         number = index_connected_to(r, number; backward=true)
     end
     number = enigma.plugboard[number]
+    return number
+end
+
+function encode_single(enigma::EnigmaMachine, c::Char)
+    number = Int(c)-64
+    number = encode_single_idx_to_idx(enigma, number)
     return Char(number+64)
 end
 
