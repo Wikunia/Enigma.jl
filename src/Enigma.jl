@@ -14,6 +14,8 @@ mutable struct EnigmaMachine
     ukw             :: Vector{Int}
 end
 
+include("Bomb.jl")
+
 function EnigmaMachine()
     return EnigmaMachine(1,2,3,1)
 end
@@ -66,16 +68,22 @@ function set_ukw!(enigma::EnigmaMachine, ukw)
 end
 
 function set_rotor_positions!(enigma::EnigmaMachine, p1, p2, p3)
-    rotor_1 = enigma.rotors[1]
-    rotor_2 = enigma.rotors[2]
-    rotor_3 = enigma.rotors[3]
-    rotor_1.position = p1
-    rotor_2.position = p2
-    rotor_3.position = p3
-    enigma.rotors = (rotor_1,rotor_2,rotor_3)
+    enigma.rotors[1].position = p1
+    enigma.rotors[2].position = p2
+    enigma.rotors[3].position = p3
+end
+
+function set_plugboard!(enigma::EnigmaMachine, setting::Vector{Tuple{Int,Int}})
+    enigma.plugboard = collect(1:26)
+    for plug in setting
+        enigma.plugboard[plug[1]] = plug[2]
+        enigma.plugboard[plug[2]] = plug[1]
+    end
 end
 
 function set_plugboard!(enigma::EnigmaMachine, setting::String)
+    enigma.plugboard = collect(1:26)
+    setting == "" && return
     parts = split(setting, " ") 
     for part in parts 
         from_letter, to_letter = part[1], part[2]
@@ -130,7 +138,7 @@ function index_connected_to(rotor, index; backward=false)
 end
 
 function encode_single(enigma::EnigmaMachine, c::Char)
-    number = Int(uppercase(c))-64
+    number = Int(c)-64
     number = enigma.plugboard[number]
     step_rotors!(enigma)
     for i=3:-1:1
@@ -145,17 +153,21 @@ function encode_single(enigma::EnigmaMachine, c::Char)
     return Char(number+64)
 end
 
-function encode(enigma::EnigmaMachine, s::String)
-    s = replace(s, r"[^a-zA-Z]" => "")
+function encode(enigma::EnigmaMachine, s::String; input_validation=true, output_style=:enigma)
+    if input_validation
+        s = replace(s, r"[^a-zA-Z]" => "")
+        s = uppercase(s)
+    end
     result = ""
     for c in s
         result *= encode_single(enigma, c)
     end
-    return enigma_styled_text(result)
+    output_style == :enigma && return enigma_styled_text(result)
+    output_style == :plain && return result
 end
 
-function decode(enigma::EnigmaMachine, s::String)
-    return encode(enigma, s)
+function decode(enigma::EnigmaMachine, s::String; input_validation=true, output_style=:enigma)
+    return encode(enigma, s; input_validation=input_validation, output_style=output_style)
 end
 
 function enigma_styled_text(text::String)
