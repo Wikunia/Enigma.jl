@@ -31,7 +31,7 @@ const possible_rotors = [
     05 19 15 22 16 26 10 01 25 17 21 09 18 08 24 12 14 06 20 07 11 04 03 13 23 02;
     22 26 02 18 07 09 20 25 21 16 19 04 14 08 12 24 01 23 13 10 17 15 06 05 03 11
 ]
-const rotation_points = [17 05 22 10 26]
+const rotation_points = [18 06 23 11 01]
 
 function get_backward_mapping(order::Vector{Int})
     backward_mp = zeros(Int, 26)
@@ -103,6 +103,11 @@ function step_rotors!(enigma::EnigmaMachine)
             enigma.rotors[1].position += 1
             enigma.rotors[1].position %= 26
         end
+    elseif enigma.rotors[2].position+1 == enigma.rotors[2].rotation_point
+        enigma.rotors[2].position += 1
+        enigma.rotors[2].position %= 26
+        enigma.rotors[1].position += 1
+        enigma.rotors[1].position %= 26
     end
 end
 

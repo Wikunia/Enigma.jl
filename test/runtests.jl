@@ -1,6 +1,7 @@
 using Enigma
 using Test
 
+@testset "Basics" begin
 @testset "No plugboard" begin
     for rp1 = 1:26, rp2=1:26
         enigma = EnigmaMachine()
@@ -57,4 +58,48 @@ end
     set_ukw!(enigma, 2)
     setting = "AB CB"
     @test_throws ErrorException set_plugboard!(enigma, setting)
+end
+
+@testset "https://piotte13.github.io/" begin
+    enigma = EnigmaMachine()
+    set_rotors!(enigma, 1,2,3)
+    set_rotor_positions!(enigma, 1,1,1)
+    set_ukw!(enigma, 2)
+
+    message = "Test"
+    encoded = encode(enigma, message)
+    @test encoded == "OLPF"
+
+    # =============================== #
+    enigma = EnigmaMachine()
+    set_rotors!(enigma, 1,2,3)
+    set_rotor_positions!(enigma, 4,9,7)
+    set_ukw!(enigma, 2)
+
+    message = "TestTestTestTestTest"
+    encoded = encode(enigma, message)
+    @test encoded == "UKTCVGCKJFGOJFXPOSOH"
+
+    # =============================== #
+    enigma = EnigmaMachine()
+    set_rotors!(enigma, 3,4,2)
+    set_rotor_positions!(enigma, 5,9,5)
+    set_ukw!(enigma, 2)
+    set_plugboard!(enigma, "TE SA")
+
+    message = "The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog"
+    encoded = encode(enigma, message)
+    @test encoded == replace("IYAAB ZZPON MPWRT RDKNG VEEHN FQJKD DLWGH JOAHE FPGCM JHGLA OBNJJ CRDJL OCIYW NUSHT", " "=>"")
+
+    # =============================== SECRET MESSAGE ======================= #
+    enigma = EnigmaMachine()
+    set_rotors!(enigma, 1,2,3)
+    set_rotor_positions!(enigma, 1,2,3)
+    set_ukw!(enigma, 3)
+    set_plugboard!(enigma, "DG XB JL")
+
+    message = "BQGYP VBFTW XOMTP FBMVW NNUMF WDNVX ANCRD TBDZX ZGQGV OMGFB KUPHB ORKZU MSTHH PTMSH UXIDW FVUVJ"
+    encoded = encode(enigma, message)
+    @test encoded == replace("LHJRY PFESX YIPQV UCIRC QVYIV QYUUA KLRVN PQWQJ HOJNF QZBYM XYMOO NDONW IELFM ICEXZ FWBVO DSQFX ", " "=>"")
+end
 end
