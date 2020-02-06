@@ -15,7 +15,7 @@ using Test
         # set rotor position again for decoding
         set_rotor_positions!(enigma, rp1,rp2,4)
         decoded = decode(enigma, encoded)
-        @test decoded == uppercase(replace(message, r"[^a-zA-Z]"=>""))
+        @test decoded == enigma_styled_text(message)
     end
 end
 
@@ -40,7 +40,7 @@ end
         # set rotor position again for decoding
         set_rotor_positions!(enigma, rp1,9,10)
         decoded = decode(enigma, encoded)
-        @test decoded == uppercase(replace(message, r"[^a-zA-Z]"=>""))
+        @test decoded == enigma_styled_text(message)
     end
 end
 
@@ -78,7 +78,7 @@ end
 
     message = "TestTestTestTestTest"
     encoded = encode(enigma, message)
-    @test encoded == "UKTCVGCKJFGOJFXPOSOH"
+    @test encoded == "UKTCV GCKJF GOJFX POSOH"
 
     # =============================== #
     enigma = EnigmaMachine()
@@ -89,7 +89,7 @@ end
 
     message = "The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog"
     encoded = encode(enigma, message)
-    @test encoded == replace("IYAAB ZZPON MPWRT RDKNG VEEHN FQJKD DLWGH JOAHE FPGCM JHGLA OBNJJ CRDJL OCIYW NUSHT", " "=>"")
+    @test encoded == "IYAAB ZZPON MPWRT RDKNG VEEHN FQJKD DLWGH JOAHE FPGCM JHGLA OBNJJ CRDJL OCIYW NUSHT"
 
     # =============================== SECRET MESSAGE ======================= #
     enigma = EnigmaMachine()
@@ -100,6 +100,6 @@ end
 
     message = "BQGYP VBFTW XOMTP FBMVW NNUMF WDNVX ANCRD TBDZX ZGQGV OMGFB KUPHB ORKZU MSTHH PTMSH UXIDW FVUVJ"
     encoded = encode(enigma, message)
-    @test encoded == replace("LHJRY PFESX YIPQV UCIRC QVYIV QYUUA KLRVN PQWQJ HOJNF QZBYM XYMOO NDONW IELFM ICEXZ FWBVO DSQFX ", " "=>"")
+    @test encoded == "LHJRY PFESX YIPQV UCIRC QVYIV QYUUA KLRVN PQWQJ HOJNF QZBYM XYMOO NDONW IELFM ICEXZ FWBVO DSQFX"
 end
 end
