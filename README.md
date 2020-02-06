@@ -3,7 +3,7 @@
 # Enigma
 
 You'll be able to decode and encode messages like using the [Enigma Machine](https://en.wikipedia.org/wiki/Enigma_machine)
-using this package.
+with this package.
 
 Currently there are five different rotors:
 
@@ -53,7 +53,7 @@ println("encoded: $encoded")
 This will generate: 
 
 ```
-encoded: BVADAERAFRHET
+encoded: KPXDG MWRWF SNN
 ```
 
 and to decode that message you have to set the starting positions of the rotors again and decode the message. (Actually it's the same as encoding it.)
@@ -67,5 +67,5 @@ println("decoded: $decoded")
 and surprise we get:
 
 ```
-decoded: SECRETMESSAGE
+decoded: SECRE TMESS AGE
 ```
