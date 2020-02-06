@@ -54,13 +54,15 @@ function EnigmaMachine(r1::Int, r2::Int, r3::Int, ukw::Int; p1=1, p2=1, p3=1)
 end
 
 function set_rotors!(enigma::EnigmaMachine, r1, r2, r3)
-    ukw = enigma.ukw
-    enigma = EnigmaMachine(r1, r2, r3, 1)
-    enigma.ukw = ukw
+    rotor_1 = Rotor(1, possible_rotors[r1,:], 1, rotation_points[r1])
+    rotor_2 = Rotor(2, possible_rotors[r2,:], 1, rotation_points[r2])
+    rotor_3 = Rotor(3, possible_rotors[r3,:], 1, rotation_points[r3])
+
+    enigma.rotors = (rotor_1, rotor_2, rotor_3)
 end
 
 function set_ukw!(enigma::EnigmaMachine, ukw)
-    enigma = EnigmaMachine(enigma.plugboard, enigma.rotors, possible_ukw[ukw,:])
+    enigma.ukw = possible_ukw[ukw,:]
 end
 
 function set_rotor_positions!(enigma::EnigmaMachine, p1, p2, p3)
@@ -70,7 +72,7 @@ function set_rotor_positions!(enigma::EnigmaMachine, p1, p2, p3)
     rotor_1.position = p1
     rotor_2.position = p2
     rotor_3.position = p3
-    enigma = EnigmaMachine(enigma.plugboard, (rotor_1,rotor_2,rotor_3), enigma.ukw)
+    enigma.rotors = (rotor_1,rotor_2,rotor_3)
 end
 
 function set_plugboard!(enigma::EnigmaMachine, setting::String)
@@ -106,14 +108,18 @@ end
 
 function index_connected_to(rotor, index; backward=false)
     if !backward
-        result = rotor.mapping[(index + 26 - rotor.position) % 26 + 1]+rotor.position-1
-        result = (result-1+26) % 26 + 1
-        backwards = index_connected_to(rotor, result; backward=true)
-        @assert backwards == index
+        # index after rotation
+        index = (index+25+rotor.position-1) % 26+1
+        through_rotor = rotor.mapping[index]
+        result = through_rotor-rotor.position+1
+        result = (result-1 + 26) % 26 + 1
         return result
     else
-        result = rotor.mapping_bw[(index + 26 - rotor.position) % 26 + 1]+rotor.position-1
-        result = (result-1+26) % 26 + 1
+        # index after rotation
+        index = (index+25+rotor.position-1) % 26 + 1
+        through_rotor = rotor.mapping_bw[index]
+        result = through_rotor-rotor.position+1
+        result = (result-1 + 26) % 26 + 1
         return result
     end
 end
