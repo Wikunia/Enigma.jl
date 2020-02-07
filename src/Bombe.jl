@@ -1,9 +1,7 @@
 mutable struct BackTrackObj
     id          :: Int
     parent_id   :: Int
-    depth       :: Int
-    deduced_1   :: Tuple{Int,Int}
-    deduced_2   :: Tuple{Int,Int}
+    deduced     :: Vector{Tuple{Int,Int}}
 end
 
 mutable struct BombeMachine
@@ -72,8 +70,7 @@ function run_cracking(bombe::BombeMachine; log=true)
     deduced = Vector{Tuple{Int, Int}}(undef, 2)
     backtrack_vec = Vector{BackTrackObj}()
     sizehint!(backtrack_vec, 100000)
-    push!(backtrack_vec, BackTrackObj(0, 0, 0, (0,0), (0,0)))
-    already_deduced = Vector{Tuple{Int,Int}}(undef, 26)
+    push!(backtrack_vec, BackTrackObj(0, 0, Tuple[]))
     for p in possible_positions
         log && println("Try $hint at position $p")
         for ukw in bombe.ukw
@@ -86,14 +83,14 @@ function run_cracking(bombe::BombeMachine; log=true)
                 for r1p in bombe.rotor_1_pos, r2p in bombe.rotor_2_pos, r3p = bombe.rotor_3_pos
                     set_rotor_positions!(enigma, r1p, r2p, r3p)
 
-                    backtrack_vec[1] = BackTrackObj(0, 0, 0, (0,0), (0,0))
+                    backtrack_vec[1] = BackTrackObj(0, 0, Tuple[])
                     back_len = 1
                     possibilities = Vector{Vector{Tuple{Int,Int}}}()
                     b_id = 0
                     while true
                         b_id = get_next_backtrack_id(backtrack_vec, b_id+1, back_len)
                         if b_id !== nothing
-                            back_len = one_deduction_step!(enigma, r1p, r2p, r3p, possibilities, already_deduced, deduced, changed, backtrack_vec, back_len, b_id, secret, hint, p)
+                            back_len = one_deduction_step!(enigma, r1p, r2p, r3p, possibilities, deduced, changed, backtrack_vec, back_len, b_id, secret, hint, p)
                         else 
                             break
                         end
@@ -150,94 +147,188 @@ function update_already_deduced!(already_deduced, backtrack_vec, backtrack_id)
     end
 end
 
-function one_deduction_step!(enigma::EnigmaMachine, r1p, r2p, r3p, possibilities::Vector{Vector{Tuple{Int,Int}}}, already_deduced, deduced, changed::Vector{Bool}, backtrack_vec::Vector{BackTrackObj}, back_len, backtrack_id, secret, hint, position)
+"""
+    pick_frequent_unchecked_letter(a::String, b::String, changed::Vector{Bool})
+
+Get most frequent letter which occurs in a or b and return the letter index 1-26 as well as the positions it occurred.
+Make sure that we don't use a letter which was already used => only if `!changed[letter_idx]`
+Return letter_idx, positions it occurs and corresponding letters on the other string. If no letter exists return letter_idx = 0
+"""
+function pick_frequent_unchecked_letter(a::String, b::String, changed::Vector{Bool})
+    @assert length(a) == length(b)
+    counter = zeros(Int, 26)
+    counter[changed] .-= length(a)
+    for i=1:length(a)
+        counter[Int(a[i]-64)] += 1
+        counter[Int(b[i]-64)] += 1
+    end
+    max, letter_idx = findmax(counter)
+    if max <= 0
+        return 0, Int[], Int[]
+    end
+    letter = Char(letter_idx+64)
+    check_positions = Int[]
+    matching_letters = Int[]
+    for i=1:length(a)
+        if a[i] == letter
+            push!(check_positions, i)
+            push!(matching_letters, Int(b[i]-64))
+        elseif b[i] == letter # elseif => don't push same position twice
+            push!(check_positions, i)
+            push!(matching_letters, Int(a[i]-64))
+        end
+    end
+    return letter_idx, check_positions, matching_letters
+end
+
+function set_plugboard_to_deduced!(enigma, changed, deduced)
     set_plugboard!(enigma, "")
     changed .= false
-    update_already_deduced!(already_deduced, backtrack_vec, backtrack_id)
-    for d in already_deduced
-        d == (0,0) && break
+    for d in deduced
         enigma.plugboard[d[1]] = d[2]
         enigma.plugboard[d[2]] = d[1]
         changed[d[1]] = true
         changed[d[2]] = true
     end
+end
 
-    hint_idx = backtrack_vec[backtrack_id].depth+1
-    hint_letter = hint[hint_idx]
-    secret_letter = secret[position-1+hint_idx]
-    secret_letter_idx = Int(secret_letter-64)
-    for plug_guess = 1:26
-        deduced[1] = (0,0)
-        deduced[2] = (0,0)
-               
-        steps = 1
+function update_check_positions!(check_positions, check_letters, matching_letters, hint, secret, result_idx, matching_letter)
+    @assert length(hint) == length(secret)
+    check_pos_comp_counter = 1
+    for i=1:length(hint)
+        if i in check_positions
+            continue
+        end
+        hint_idx = Int(hint[i]-64)
+        secret_idx = Int(secret[i]-64)
+        if hint_idx == result_idx || hint_idx == matching_letter || secret_idx == result_idx || secret_idx == matching_letter
+            push!(check_positions, i)
+            push!(check_letters, hint_idx)
+            push!(matching_letters, secret_idx)
+        end
+    end
+end
+
+"""
+    get_deduced_by_plugboard_and_changed(plugboard::Vector{Int}, changed::Vector{Bool})
+
+Return a list of plugboard changes given the plugboard and a boolean `changed` vector. Latter is important to set connections like A <-> A
+"""
+function get_deduced_by_plugboard_and_changed(plugboard::Vector{Int}, changed::Vector{Bool})
+    changed_copy = changed[:]
+    deduced = Vector{Tuple{Int, Int}}()
+    for i=1:length(changed)
+        if changed_copy[i]
+            from = i
+            to = plugboard[i]
+            # don't get to the same plug twice
+            changed_copy[to] = false
+            push!(deduced, (from, to))
+        end
+    end 
+    return deduced
+end
+
+function one_deduction_step!(enigma::EnigmaMachine, r1p, r2p, r3p, possibilities::Vector{Vector{Tuple{Int,Int}}}, deduced, changed::Vector{Bool}, backtrack_vec::Vector{BackTrackObj}, back_len, backtrack_id, secret, hint, position)
+    start_changed = changed[:]
+    set_plugboard_to_deduced!(enigma, changed, backtrack_vec[backtrack_id].deduced)
+
+    # pick letter index to check (one which is used most often in the possible range)
+    # either in the secret message or in the hint 
+    plug_start_idx, start_check_positions, start_matching_letters = pick_frequent_unchecked_letter(hint, secret[position:position+length(hint)-1], changed)
+    if plug_start_idx == 0
+        # try to decode secret at position to check if it fits the hint
         set_rotor_positions!(enigma, r1p,r2p,r3p)
-        while steps < position-1+hint_idx
+        start = 1
+        while start < position
             step_rotors!(enigma)
-            steps += 1
+            start += 1
         end
-        # println([r.position for r in enigma.rotors])
+        decoded_msg = decode(enigma, secret[position:position-1+length(hint)]; input_validation=false, output_style=:plain)
+        if decoded_msg == hint
+            push!(possibilities, get_deduced_by_plugboard_and_changed(enigma.plugboard, changed))
+        end
+        return back_len
+    end
+    # println("Plug start with: $(Char(plug_start_idx+64)) on $start_check_positions")
+    # println("The matching_letters are $([Char(c+64) for c in start_matching_letters])")
+    # iterate over all plugboard settings
+    for plug_guess = 1:26
+        # set plugboard to this setting if not set
+        changed[plug_guess] && continue
+        check_positions = start_check_positions[:]
+        check_letters = fill(plug_start_idx, length(check_positions))
+        matching_letters = start_matching_letters[:]
+        log = false
+        if Char(plug_guess+64) == 'F'
+            log = false
+        end
+        log && println("===============================================")
+        log && println("plug_start_idx: ", Char(plug_start_idx+64))
+        log && println("plug_guess: ", Char(plug_guess+64))
+        enigma.plugboard[plug_start_idx] = plug_guess
+        enigma.plugboard[plug_guess] = plug_start_idx
+        changed[plug_start_idx] = true
+        changed[plug_guess]     = true
 
-        # check if possible 
-        if (!changed[secret_letter_idx] && !changed[plug_guess]) || (enigma.plugboard[secret_letter_idx] == plug_guess && enigma.plugboard[plug_guess] == secret_letter_idx)
+        check_pos_idx = 1
+        is_possible = true
+        while check_pos_idx <= length(check_positions)
+            # set enigma to correct starting position
+            set_rotor_positions!(enigma, r1p,r2p,r3p)
 
-            if !changed[secret_letter_idx] && !changed[plug_guess]
-                enigma.plugboard[secret_letter_idx] = plug_guess
-                enigma.plugboard[plug_guess]        = secret_letter_idx
-                changed[secret_letter_idx]          = true
-                changed[plug_guess]                 = true
-                deduced[1] = (secret_letter_idx, plug_guess)
+            check_pos = check_positions[check_pos_idx]
+            check_letter = check_letters[check_pos_idx]
+            matching_letter = matching_letters[check_pos_idx]
+            log && println("Check letter: ", Char(check_letter+64))
+            log && println("Matching letter: ", Char(matching_letter+64))
+    
+            check_pos_idx += 1
+            # advance rotors to that position
+            start = 1
+            while start < position-1+check_pos
+                step_rotors!(enigma)
+                start += 1
             end
-        else
-            continue
+            # println("Rotor positions: ", [r.position for r in enigma.rotors])
+            # run through machine 
+            result_idx = Enigma.encode_single_idx_to_idx(enigma, check_letter)
+            
+            # make deduction and check new plug guess if wrong
+            if !deduce_plugboard!(enigma, changed, result_idx, matching_letter)
+                # can't be possible => reset plugboard
+                set_plugboard_to_deduced!(enigma, changed, backtrack_vec[backtrack_id].deduced)
+                is_possible = false
+                log && println("Wrong")
+                break
+            end
+            log && println("Deduced or already correct => ", Char(result_idx+64), " <-> ", Char(matching_letter+64))
+            # add new checks to check_positions, check_letters, matching_letters if not checked yet
+            # println("update...")
+            update_check_positions!(check_positions, check_letters, matching_letters, hint, secret[position:position-1+length(hint)], result_idx, matching_letter)
         end
-
-        result_idx = Enigma.encode_single_idx_to_idx(enigma, secret_letter_idx)
-        hint_letter_idx = Int(hint_letter-64)
-        if !deduce_plugboard!(enigma, deduced, changed, result_idx, hint_letter_idx)
-            revert_deduced!(enigma, deduced, changed)
-            continue
-        end
-      
-        revert_deduced!(enigma, deduced, changed)
-        if hint_idx != length(hint)
+        if is_possible
+            new_deduced = get_deduced_by_plugboard_and_changed(enigma.plugboard, changed)
+            log && println("new_deduced: ", new_deduced)
             back_len += 1
             if back_len <= length(backtrack_vec)
                 backtrack_vec[back_len].id        = back_len
                 backtrack_vec[back_len].parent_id = backtrack_id
-                backtrack_vec[back_len].depth     = hint_idx
-                backtrack_vec[back_len].deduced_1 = deduced[1]
-                backtrack_vec[back_len].deduced_2 = deduced[2]
+                backtrack_vec[back_len].deduced   = new_deduced
             else
-                push!(backtrack_vec, BackTrackObj(back_len, backtrack_id, hint_idx, deduced[1], deduced[2]))
+                push!(backtrack_vec, BackTrackObj(back_len, backtrack_id, new_deduced))
             end
-        else 
-            plugboard = Vector{Tuple{Int,Int}}()
-            for d in already_deduced
-                d == (0,0) && continue
-                push!(plugboard, d)
-            end
-            if deduced[1] != (0,0)
-                push!(plugboard, deduced[1])
-            end
-            if deduced[2] != (0,0)
-                push!(plugboard, deduced[2])
-            end
-            push!(possibilities, plugboard)
         end
+        # reset plugboard to starting position
+        set_plugboard_to_deduced!(enigma, changed, backtrack_vec[backtrack_id].deduced)
     end
     return back_len
 end
 
-function deduce_plugboard!(enigma::EnigmaMachine, deduced::Vector{Tuple{Int, Int}}, changed::Vector{Bool}, from::Int, to::Int)
+function deduce_plugboard!(enigma::EnigmaMachine, changed::Vector{Bool}, from::Int, to::Int)
     # no plug needed as it already correctly connected
     if from == to && !changed[from] 
         changed[from]          = true
-        if deduced[1] == (0,0)
-            deduced[1] = (from, from)
-        else
-            deduced[2] = (from, from)
-        end
         return true
     elseif from == to
         return true
@@ -247,11 +338,6 @@ function deduce_plugboard!(enigma::EnigmaMachine, deduced::Vector{Tuple{Int, Int
         enigma.plugboard[to]   = from
         changed[from]          = true
         changed[to]            = true
-        if deduced[1] == (0,0)
-            deduced[1] = (from, to)
-        else
-            deduced[2] = (from, to)
-        end
         return true
     end
     return false
