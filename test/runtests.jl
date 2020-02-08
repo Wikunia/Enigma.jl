@@ -201,3 +201,13 @@ end
     end
 end
 end
+@testset "plotting" begin
+@testset "just let it run" begin
+    # Just tests that the methods don't error :D
+    enigma = EnigmaMachine()
+    plts = get_enigma_decode_plots!(enigma, 'K')
+    @test length(plts) == 29
+    animate_plots(plts[1:2], "enigma_plot_320948209384023842204804038024"; end_extra=1)
+    rm("enigma_plot_320948209384023842204804038024.gif")
+end
+end
