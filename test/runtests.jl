@@ -102,4 +102,11 @@ end
     encoded = encode(enigma, message)
     @test encoded == "LHJRY PFESX YIPQV UCIRC QVYIV QYUUA KLRVN PQWQJ HOJNF QZBYM XYMOO NDONW IELFM ICEXZ FWBVO DSQFX"
 end
+
+@testset "plotting" begin
+    # Just tests that the methods don't error :D
+    enigma = EnigmaMachine()
+    plts = get_enigma_decode_plots!(enigma, 'K')
+    @test length(plts) == 29
+end
 end
