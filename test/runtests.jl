@@ -116,6 +116,9 @@ end
     message = "BQGYP VBFTW XOMTP FBMVW NNUMF WDNVX ANCRD TBDZX ZGQGV OMGFB KUPHB ORKZU MSTHH PTMSH UXIDW FVUVJ"
     encoded = encode(enigma, message)
     @test encoded == "LHJRY PFESX YIPQV UCIRC QVYIV QYUUA KLRVN PQWQJ HOJNF QZBYM XYMOO NDONW IELFM ICEXZ FWBVO DSQFX"
+    set_rotor_positions!(enigma, 1,2,3)
+    encoded = encode(enigma, message; output_style=:plain)
+    @test encoded == "LHJRYPFESXYIPQVUCIRCQVYIVQYUUAKLRVNPQWQJHOJNFQZBYMXYMOONDONWIELFMICEXZFWBVODSQFX"
 end
 end
 
