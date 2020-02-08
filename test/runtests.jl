@@ -169,6 +169,7 @@ end
     set_possible_rotor_positions!(bombe, 1:5,1:26,1:26)
     set_possible_ukws!(bombe, 1)
     set_possible_hint_positions!(bombe, 1:5)
+    disable_ambiguous!(bombe)
     enigmas = run_cracking(bombe; log=false)
     found = false
     correct_message = enigma_styled_text("A Weatherreport It is very nice outside so be friendly")
@@ -199,6 +200,28 @@ end
         encoded_str = replace(encoded, " "=>"")
         @test findfirst(hint_part, encoded_str[10:40]) !== nothing
     end
+
+    # need to check all ambiguous possibilities
+    crack_message = "NTUPQ KYKLL PZNWY LUMGW DUWVV BLLHM USGVM PKDGV ZXOYV QSGIP XRURK OSYRP BNGVP LALIT PEHVE SODIW"
+    hint = "Often it is easy"
+    bombe = BombeMachine(crack_message, hint)
+    set_possible_rotors!(bombe, 3,4,1)
+    set_possible_rotor_positions!(bombe, 7, 11, 12)
+    set_possible_hint_positions!(bombe, 1)
+    set_possible_ukws!(bombe, 3)
+    enable_ambiguous!(bombe)
+    enigmas = run_cracking(bombe; log=false)
+    found = false
+    correct_message = enigma_styled_text("Often it is easy but sometimes it is hard to crack because the first word does not give enough hint")
+
+    for enigma in enigmas
+        encoded = encode(enigma, crack_message)
+        if encoded == correct_message
+            found = true
+            break
+        end
+    end
+    @test found === true
 end
 end
 @testset "plotting" begin

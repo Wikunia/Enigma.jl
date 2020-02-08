@@ -275,9 +275,6 @@ function one_deduction_step!(bombe::BombeMachine, enigma::EnigmaMachine, r1p, r2
         deduced_plugs = get_deduced_by_plugboard_and_changed(enigma.plugboard, changed)
         if bombe.check_ambiguous
             undeducable_combinations = [deduced_plugs]
-            println(undeducable_combinations[1])
-            println(changed)
-            err()
             add_all_undeducable_combinations!(possibilities, undeducable_combinations, changed)
         else
             push!(possibilities, deduced_plugs)
