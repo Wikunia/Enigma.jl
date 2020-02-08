@@ -4,6 +4,7 @@
 
 You'll be able to decode and encode messages like using the [Enigma Machine](https://en.wikipedia.org/wiki/Enigma_machine)
 with this package.
+Even more awesome you can try cracking the code by given hints ;)
 
 Currently there are five different rotors:
 
@@ -69,3 +70,62 @@ and surprise we get:
 ```
 decoded: SECRE TMESS AGE
 ```
+
+## Cracking using the Bombe
+
+The Enigma code was famously cracked by Alan Turing and Co. in Bletchley Park.
+
+This package also support to crack codes. 
+
+```
+crack_message = "HGHXI AGYEY NDIFW PRMDD QSMJG DCAKP FMIZL RVQIZ WRLJM "
+hint = "weatherreport"
+```
+
+You got that weird message and you think that the word `weatherreport` starts at the first 5 chars to support something like 
+`A weatherreport` or `The weatherreport` and stuff like that.
+
+First you define the `BombeMachine` by given the secret text and the `hint`.
+Then you can crack the code and it will check `weatherreport` on all positions and all possible plug setting, rotors, rotor positions and the three ukws.
+
+```
+bombe = BombeMachine(crack_message, hint)
+enigmas = run_cracking(bombe; log=false)
+```
+That might take a while. Therefore you can give more hints.
+
+```
+# you know that rotor V is not used and the left most rotor is III
+set_possible_rotors!(bombe, 3,1:4,1:4)
+# Maybe you also know that the rotor position of III is something between 1 and 5.
+set_possible_rotor_positions!(bombe, 1:5,1:26,1:26)
+# The ukw is UKW A
+set_possible_ukws!(bombe, 1)
+# and the hint positions
+set_possible_hint_positions!(bombe, 1:5)
+enigmas = run_cracking(bombe; log=false);
+```
+
+This gets cracked in a few seconds now. The result is a set of enigma machines. 
+
+Then you can run:
+
+```
+for enigma in enigmas
+    encoded = encode(enigma, crack_message)
+    println(encoded)
+end
+```
+
+One of the 11 found solutions is the message. 
+
+Unfortunately sometimes the hint is not enough to get the correct solution because some plugs can be removed from the real setting and still produce the hint. These extra plugs are hard to generate (well sometimes there are a lot)
+Of course this package gives you the possibility to test all those combinations which often takes much longer and you probably be able to guess the message without it. 
+
+You really want to set this option? Okay here you go:
+
+```
+enable_ambiguous!(bombe)
+```
+
+and then run `enigmas = run_cracking(bombe; log=false);` again.
