@@ -1,6 +1,7 @@
 module Enigma
 
 mutable struct Rotor
+    name            :: String
     order           :: Int # indicates whether it's the 1st, 2nd, 3rd rotor
     mapping         :: Vector{Int}
     mapping_bw      :: Vector{Int}
@@ -8,28 +9,35 @@ mutable struct Rotor
     rotation_point  :: Int
 end
 
+mutable struct UKW
+    name            :: String
+    mapping         :: Vector{Int}
+end
+
 mutable struct EnigmaMachine
     plugboard       :: Vector{Int}
     rotors          :: Tuple{Rotor,Rotor,Rotor}
-    ukw             :: Vector{Int}
+    ukw             :: UKW
 end
+
+include("EnigmaVis.jl")
 
 function EnigmaMachine()
     return EnigmaMachine(1,2,3,1)
 end
 
 const possible_ukw = [
-    05 10 13 26 01 12 25 24 22 02 23 06 03 18 17 21 15 14 20 19 16 09 11 08 07 04;
-    25 18 21 08 17 19 12 04 16 24 14 07 15 11 13 09 05 02 06 26 03 23 22 10 01 20;
-    06 22 16 10 09 01 15 25 05 04 18 26 24 23 07 03 20 11 21 17 19 02 14 13 08 12
+    "A" => [05, 10, 13, 26, 01, 12, 25, 24, 22, 02, 23, 06, 03, 18, 17, 21, 15, 14, 20, 19, 16, 09, 11, 08, 07, 04],
+    "B" => [25, 18, 21, 08, 17, 19, 12, 04, 16, 24, 14, 07, 15, 11, 13, 09, 05, 02, 06, 26, 03, 23, 22, 10, 01, 20],
+    "C" => [06, 22, 16, 10, 09, 01, 15, 25, 05, 04, 18, 26, 24, 23, 07, 03, 20, 11, 21, 17, 19, 02, 14, 13, 08, 12],
 ]
 
 const possible_rotors = [
-    05 11 13 06 12 07 04 17 22 26 14 20 15 23 25 08 24 21 19 16 01 09 02 18 03 10;
-    01 10 04 11 19 09 18 21 24 02 12 08 23 20 13 03 17 07 26 14 16 25 06 22 15 05;
-    02 04 06 08 10 12 03 16 18 20 24 22 26 14 25 05 09 23 07 01 11 13 21 19 17 15;
-    05 19 15 22 16 26 10 01 25 17 21 09 18 08 24 12 14 06 20 07 11 04 03 13 23 02;
-    22 26 02 18 07 09 20 25 21 16 19 04 14 08 12 24 01 23 13 10 17 15 06 05 03 11
+    "I"   => [05, 11, 13, 06, 12, 07, 04, 17, 22, 26, 14, 20, 15, 23, 25, 08, 24, 21, 19, 16, 01, 09, 02, 18, 03, 10],
+    "II"  => [01, 10, 04, 11, 19, 09, 18, 21, 24, 02, 12, 08, 23, 20, 13, 03, 17, 07, 26, 14, 16, 25, 06, 22, 15, 05],
+    "III" => [02, 04, 06, 08, 10, 12, 03, 16, 18, 20, 24, 22, 26, 14, 25, 05, 09, 23, 07, 01, 11, 13, 21, 19, 17, 15],
+    "IV"  => [05, 19, 15, 22, 16, 26, 10, 01, 25, 17, 21, 09, 18, 08, 24, 12, 14, 06, 20, 07, 11, 04, 03, 13, 23, 02],
+    "V"   => [22, 26, 02, 18, 07, 09, 20, 25, 21, 16, 19, 04, 14, 08, 12, 24, 01, 23, 13, 10, 17, 15, 06, 05, 03, 11]
 ]
 const rotation_points = [18 06 23 11 01]
 
@@ -41,28 +49,28 @@ function get_backward_mapping(order::Vector{Int})
     return backward_mp
 end
 
-function Rotor(order::Int, mapping::Vector{Int}, position::Int, rotation_point::Int)
-    return Rotor(order, mapping, get_backward_mapping(mapping), position, rotation_point)
+function Rotor(name::String, order::Int, mapping::Vector{Int}, position::Int, rotation_point::Int)
+    return Rotor(name, order, mapping, get_backward_mapping(mapping), position, rotation_point)
 end
 
 function EnigmaMachine(r1::Int, r2::Int, r3::Int, ukw::Int; p1=1, p2=1, p3=1)
-    rotor_1 = Rotor(1, possible_rotors[r1,:], p1, rotation_points[r1])
-    rotor_2 = Rotor(2, possible_rotors[r2,:], p2, rotation_points[r2])
-    rotor_3 = Rotor(3, possible_rotors[r3,:], p3, rotation_points[r3])
+    rotor_1 = Rotor(possible_rotors[r1].first, 1, possible_rotors[r1].second, p1, rotation_points[r1])
+    rotor_2 = Rotor(possible_rotors[r2].first, 2, possible_rotors[r2].second, p2, rotation_points[r2])
+    rotor_3 = Rotor(possible_rotors[r3].first, 3, possible_rotors[r3].second, p3, rotation_points[r3])
 
-    return EnigmaMachine(collect(1:26), (rotor_1,rotor_2,rotor_3), possible_ukw[ukw,:])
+    return EnigmaMachine(collect(1:26), (rotor_1,rotor_2,rotor_3), UKW(possible_ukw[ukw].first, possible_ukw[ukw].second))
 end
 
 function set_rotors!(enigma::EnigmaMachine, r1, r2, r3)
-    rotor_1 = Rotor(1, possible_rotors[r1,:], 1, rotation_points[r1])
-    rotor_2 = Rotor(2, possible_rotors[r2,:], 1, rotation_points[r2])
-    rotor_3 = Rotor(3, possible_rotors[r3,:], 1, rotation_points[r3])
+    rotor_1 = Rotor(possible_rotors[r1].first, 1, possible_rotors[r1].second, enigma.rotors[1].position, rotation_points[r1])
+    rotor_2 = Rotor(possible_rotors[r2].first, 2, possible_rotors[r2].second, enigma.rotors[2].position, rotation_points[r2])
+    rotor_3 = Rotor(possible_rotors[r3].first, 3, possible_rotors[r3].second, enigma.rotors[3].position, rotation_points[r3])
 
     enigma.rotors = (rotor_1, rotor_2, rotor_3)
 end
 
 function set_ukw!(enigma::EnigmaMachine, ukw)
-    enigma.ukw = possible_ukw[ukw,:]
+    enigma.ukw = UKW(possible_ukw[ukw].first, possible_ukw[ukw].second)
 end
 
 function set_rotor_positions!(enigma::EnigmaMachine, p1, p2, p3)
@@ -113,14 +121,12 @@ end
 
 function index_connected_to(rotor, index; backward=false)
     if !backward
-        # index after rotation
         index = (index+25+rotor.position-1) % 26+1
         through_rotor = rotor.mapping[index]
         result = through_rotor-rotor.position+1
         result = (result-1 + 26) % 26 + 1
         return result
     else
-        # index after rotation
         index = (index+25+rotor.position-1) % 26 + 1
         through_rotor = rotor.mapping_bw[index]
         result = through_rotor-rotor.position+1
@@ -137,7 +143,7 @@ function encode_single(enigma::EnigmaMachine, c::Char)
         r = enigma.rotors[i]
         number = index_connected_to(r, number)
     end
-    number = enigma.ukw[number]
+    number = enigma.ukw.mapping[number]
     for r in enigma.rotors
         number = index_connected_to(r, number; backward=true)
     end
