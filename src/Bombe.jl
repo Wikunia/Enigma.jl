@@ -129,35 +129,6 @@ function get_next_backtrack_id(backtrack_vec::Vector{BackTrackObj}, start, back_
     return nothing
 end
 
-function revert_deduced!(enigma, deduced, changed)
-    for d in deduced
-        d == (0,0) && continue
-        enigma.plugboard[d[1]] = d[1]
-        enigma.plugboard[d[2]] = d[2]
-        changed[d[1]] = false
-        changed[d[2]] = false
-    end
-end
-
-function update_already_deduced!(already_deduced, backtrack_vec, backtrack_id)
-    bid = backtrack_id
-    c = 0
-    while bid != 0
-        if backtrack_vec[bid].deduced_1 != (0,0)
-            c += 1
-            already_deduced[c] = backtrack_vec[bid].deduced_1
-        end
-        if backtrack_vec[bid].deduced_2 != (0,0)
-            c += 1
-            already_deduced[c] = backtrack_vec[bid].deduced_2
-        end
-        bid = backtrack_vec[bid].parent_id
-    end
-    for i=c+1:26
-        already_deduced[i] = (0,0)
-    end
-end
-
 """
     pick_frequent_unchecked_letter(a::String, b::String, changed::Vector{Bool}, counter::Vector{Int})
 

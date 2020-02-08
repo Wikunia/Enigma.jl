@@ -123,7 +123,9 @@ end
 @testset "Cracking given all but plugboard/hint pos" begin
     crack_message = "VZEKL OYDBD SFFYD LZQVS HAWVP BGAMY ATKPW T"
     hint = "message"
-    bombe = BombeMachine(crack_message, hint)
+    bombe = BombeMachine("DONT KNOW YET", "HINT?")
+    set_secret!(bombe, crack_message)
+    set_hint!(bombe, hint)
     set_possible_rotors!(bombe, 1,2,3)
     set_possible_rotor_positions!(bombe, 1,1,1)
     set_possible_ukws!(bombe, 1:1)
