@@ -35,7 +35,7 @@ You can install this julia package using
 
 If everything goes well I will make a request to make this a julia package but that needs a little bit more work.
 
-Simple usage:
+## Simple usage 
 
 ```
 using Enigma
