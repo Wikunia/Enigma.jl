@@ -26,9 +26,14 @@ UKW B   Y R U H Q S L D P X N G O K M I E B F Z C W V J A T
 UKW C   F V P J I A O Y E D R Z X W G C T K U Q S B N M H L
 ```
 
-Additionally you'll be able to crack Enigma codes if you have an encrypted message and some kind of hint like `Wetterbericht` is part of the first 100 characters of the message. 
+Additionally you're be able to crack Enigma codes if you have an encrypted message and some kind of hint like `Wetterbericht` is part of the first 100 characters of the message. 
 
-Ongoing project ;) 
+## Installation
+You can install this julia package using 
+`] add https://github.com/Wikunia/Enigma.jl` or if you want to change code you might want to use
+`] dev https://github.com/Wikunia/Enigma.jl`.
+
+If everything goes well I will make a request to make this a julia package but that needs a little bit more work.
 
 Simple usage:
 
