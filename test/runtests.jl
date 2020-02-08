@@ -110,6 +110,7 @@ end
     enigma = EnigmaMachine()
     plts = get_enigma_decode_plots!(enigma, 'K')
     @test length(plts) == 29
-    animate_plots(plts[1:2], "/tmp/enigma_plot"; end_extra=1)
+    animate_plots(plts[1:2], "enigma_plot_320948209384023842204804038024"; end_extra=1)
+    rm("enigma_plot__320948209384023842204804038024.gif")
 end
 end
