@@ -270,21 +270,28 @@ function get_enigma_plot(enigma::EnigmaMachine)
     return plt
 end
 
-function get_enigma_decode_plots!(enigma::EnigmaMachine, letter::Char; pngs=false)
+function get_enigma_decode_plots!(enigma::EnigmaMachine, letter::Char; pngs=false, anim=nothing)
+    letter = uppercase(letter)
+    println("Letter: ", letter)
     plts = Plots.Plot[]
     plt = get_enigma_plot(enigma)
     push!(plts, deepcopy(plt))
+    anim !== nothing && frame(anim)
     step_rotors!(enigma)
     plt = get_enigma_plot(enigma)
     push!(plts, deepcopy(plt))
+    anim !== nothing && frame(anim)
 
     letter_idx = Int(letter-64)
     update_plugboard_plot(plt, enigma.plugboard; right_idx=letter_idx)
     push!(plts, deepcopy(plt))
+    anim !== nothing && frame(anim)
     update_plugboard_plot(plt, enigma.plugboard; right_idx=letter_idx, connecting=true)
     push!(plts, deepcopy(plt))
+    anim !== nothing && frame(anim)
     update_plugboard_plot(plt, enigma.plugboard; right_idx=letter_idx, connected=true)
     push!(plts, deepcopy(plt))
+    anim !== nothing && frame(anim)
     pngs && png(plt, "visualizations/plugboard_in")
     
     plugboard_out_idx = enigma.plugboard[letter_idx]
@@ -292,53 +299,82 @@ function get_enigma_decode_plots!(enigma::EnigmaMachine, letter::Char; pngs=fals
     for r=3:-1:1
         update_rotor_plot(plt, enigma.rotors[r]; right_idx=right_idx)
         push!(plts, deepcopy(plt))
+        anim !== nothing && frame(anim)
         update_rotor_plot(plt, enigma.rotors[r]; right_idx=right_idx, connecting=true)
         push!(plts, deepcopy(plt))
+        anim !== nothing && frame(anim)
         update_rotor_plot(plt, enigma.rotors[r]; right_idx=right_idx, connected=true)
         push!(plts, deepcopy(plt))
+        anim !== nothing && frame(anim)
         right_idx = index_connected_to(enigma.rotors[r], right_idx)
         pngs && png(plt, "visualizations/rotor_$(r)_in")
     end
     update_ukw_plot(plt, enigma.ukw, right_idx)
     push!(plts, deepcopy(plt))
+    anim !== nothing && frame(anim)
     update_ukw_plot(plt, enigma.ukw, right_idx, connecting=true)
     push!(plts, deepcopy(plt))
+    anim !== nothing && frame(anim)
     update_ukw_plot(plt, enigma.ukw, right_idx, connected=true)
     push!(plts, deepcopy(plt))
+    anim !== nothing && frame(anim)
     left_idx = enigma.ukw.mapping[right_idx]
     pngs && png(plt, "visualizations/ukw")
     for r=1:3
         update_rotor_plot(plt, enigma.rotors[r]; left_idx=left_idx)
         push!(plts, deepcopy(plt))
+        anim !== nothing && frame(anim)
         update_rotor_plot(plt, enigma.rotors[r]; left_idx=left_idx, connecting=true)
         push!(plts, deepcopy(plt))
+        anim !== nothing && frame(anim)
         update_rotor_plot(plt, enigma.rotors[r]; left_idx=left_idx, connected=true)
         push!(plts, deepcopy(plt))
+        anim !== nothing && frame(anim)
         left_idx = index_connected_to(enigma.rotors[r], left_idx; backward=true)
         pngs && png(plt, "visualizations/rotor_$(r)_bw")
     end
     update_plugboard_plot(plt, enigma.plugboard; left_idx=left_idx)
     push!(plts, deepcopy(plt))
+    anim !== nothing && frame(anim)
     update_plugboard_plot(plt, enigma.plugboard; left_idx=left_idx, connecting=true)
     push!(plts, deepcopy(plt))
+    anim !== nothing && frame(anim)
     update_plugboard_plot(plt, enigma.plugboard; left_idx=left_idx, connected=true)
     push!(plts, deepcopy(plt))
-    pngs && png(plt_plug, "visualizations/plugboard_out")
-
+    anim !== nothing && frame(anim)
+    pngs && png(plt, "visualizations/plugboard_out")
     return plts
 end
 
-function animate_plots(plts::Vector{Plots.Plot}, fname::String; end_extra=5)
+function get_enigma_decode_plots!(enigma::EnigmaMachine, s::String)
+    plts = Vector{Plots.Plot}()
+    for c in s
+        if isletter(c)
+            append!(plts, get_enigma_decode_plots!(enigma, c))
+        end
+    end
+    return plts
+end
+
+function animate_plots(plts::Vector{Plots.Plot}, fname::String; end_extra=5, result_type=:gif, fps=4)
     anim = Animation()
+    i = 1
     for plt in plts
         plot(plt) 
         frame(anim)
+        if i % 29 == 0
+            for i=1:end_extra
+                plot(plt)
+                frame(anim)
+            end
+        end
+        i += 1
     end
-    for i=1:end_extra
-        plot(plts[end])
-        frame(anim)
+    if result_type == :gif
+        gif(anim, "$fname.gif", fps=fps)
+    else
+        mp4(anim, "$fname.mp4", fps=fps)
     end
-    gif(anim, "$fname.gif", fps=4)
 end
 
 export get_enigma_plot, get_enigma_decode_plots!, animate_plots

@@ -21,7 +21,7 @@ mutable struct EnigmaMachine
 end
 
 include("Bombe.jl")
-include("EnigmaVis.jl")
+include("EnigmaVisMakie.jl")
 
 function EnigmaMachine()
     return EnigmaMachine(1,2,3,1)
@@ -131,19 +131,15 @@ function step_rotors!(enigma::EnigmaMachine)
 end
 
 function index_connected_to(rotor, index; backward=false)
+    index = (index+25+rotor.position-1) % 26+1
     if !backward
-        index = (index+25+rotor.position-1) % 26+1
         through_rotor = rotor.mapping[index]
-        result = through_rotor-rotor.position+1
-        result = (result-1 + 26) % 26 + 1
-        return result
     else
-        index = (index+25+rotor.position-1) % 26 + 1
         through_rotor = rotor.mapping_bw[index]
-        result = through_rotor-rotor.position+1
-        result = (result-1 + 26) % 26 + 1
-        return result
     end
+    result = through_rotor-rotor.position+1
+    result = (result-1 + 26) % 26 + 1
+    return result
 end
 
 function encode_single_idx_to_idx(enigma::EnigmaMachine, number::Int)
