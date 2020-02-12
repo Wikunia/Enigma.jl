@@ -123,7 +123,7 @@ end
 end
 
 @testset "Bombe" begin
-@testset "Cracking given all but plugboard/hint pos" begin
+@testset "Cracking given all but plugboard" begin
     crack_message = "VZEKL OYDBD SFFYD LZQVS HAWVP BGAMY ATKPW T"
     hint = "message"
     bombe = BombeMachine("DONT KNOW YET", "HINT?")
@@ -132,7 +132,9 @@ end
     set_possible_rotors!(bombe, 1,2,3)
     set_possible_rotor_positions!(bombe, 1,1,1)
     set_possible_ukws!(bombe, 1:1)
-    enigmas = run_cracking(bombe; log=false)
+    # is at position 12 and 17 and 18 are not possible
+    set_possible_hint_positions!(bombe, [12,17,18])
+    enigmas = run_cracking(bombe; log=true)
     found = false
     correct_message = enigma_styled_text("This is a test message for testing the Bombe")
     
