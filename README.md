@@ -52,7 +52,7 @@ set_ukw!(enigma, 2)
 set_plugboard!(enigma, "AC BE GZ JK ML")
 
 message = "Secret message"
-encoded = encode(enigma, message)
+encoded = encode!(enigma, message)
 println("encoded: $encoded")
 ```
 
@@ -66,7 +66,7 @@ and to decode that message you have to set the starting positions of the rotors 
 
 ```
 set_rotor_positions!(enigma, 10,20,4)
-decoded = decode(enigma, encoded)
+decoded = decode!(enigma, encoded)
 println("decoded: $decoded")
 ```
 
@@ -117,7 +117,7 @@ Then you can run:
 
 ```
 for enigma in enigmas
-    encoded = encode(enigma, crack_message)
+    encoded = encode!(enigma, crack_message)
     println(encoded)
 end
 ```

@@ -10,11 +10,11 @@ using Test
         set_ukw!(enigma, 2)
 
         message = "This is an Enigma test"
-        encoded = encode(enigma, message)
+        encoded = encode!(enigma, message)
         
         # set rotor position again for decoding
         set_rotor_positions!(enigma, rp1,rp2,4)
-        decoded = decode(enigma, encoded)
+        decoded = decode!(enigma, encoded)
         @test decoded == enigma_styled_text(message)
     end
 
@@ -25,11 +25,11 @@ using Test
         set_ukw!(enigma, 3)
 
         message = "This is an Enigma test"
-        encoded = encode(enigma, message)
+        encoded = encode!(enigma, message)
         
         # set rotor position again for decoding
         set_rotor_positions!(enigma, rp1,rp2,4)
-        decoded = decode(enigma, encoded)
+        decoded = decode!(enigma, encoded)
         @test decoded == enigma_styled_text(message)
     end
 end
@@ -50,11 +50,11 @@ end
         set_plugboard!(enigma, setting)
 
         message = "The quick brown fox jumps over the lazy dog"
-        encoded = encode(enigma, message)
+        encoded = encode!(enigma, message)
         
         # set rotor position again for decoding
         set_rotor_positions!(enigma, rp1,9,10)
-        decoded = decode(enigma, encoded)
+        decoded = decode!(enigma, encoded)
         @test decoded == enigma_styled_text(message)
     end
 end
@@ -82,7 +82,7 @@ end
     set_ukw!(enigma, 2)
 
     message = "Test"
-    encoded = encode(enigma, message)
+    encoded = encode!(enigma, message)
     @test encoded == "OLPF"
 
     # =============================== #
@@ -92,7 +92,7 @@ end
     set_ukw!(enigma, 2)
 
     message = "TestTestTestTestTest"
-    encoded = encode(enigma, message)
+    encoded = encode!(enigma, message)
     @test encoded == "UKTCV GCKJF GOJFX POSOH"
 
     # =============================== #
@@ -103,7 +103,7 @@ end
     set_plugboard!(enigma, "TE SA")
 
     message = "The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog"
-    encoded = encode(enigma, message)
+    encoded = encode!(enigma, message)
     @test encoded == "IYAAB ZZPON MPWRT RDKNG VEEHN FQJKD DLWGH JOAHE FPGCM JHGLA OBNJJ CRDJL OCIYW NUSHT"
 
     # =============================== SECRET MESSAGE ======================= #
@@ -114,10 +114,10 @@ end
     set_plugboard!(enigma, "DG XB JL")
 
     message = "BQGYP VBFTW XOMTP FBMVW NNUMF WDNVX ANCRD TBDZX ZGQGV OMGFB KUPHB ORKZU MSTHH PTMSH UXIDW FVUVJ"
-    encoded = encode(enigma, message)
+    encoded = encode!(enigma, message)
     @test encoded == "LHJRY PFESX YIPQV UCIRC QVYIV QYUUA KLRVN PQWQJ HOJNF QZBYM XYMOO NDONW IELFM ICEXZ FWBVO DSQFX"
     set_rotor_positions!(enigma, 1,2,3)
-    encoded = encode(enigma, message; output_style=:plain)
+    encoded = encode!(enigma, message; output_style=:plain)
     @test encoded == "LHJRYPFESXYIPQVUCIRCQVYIVQYUUAKLRVNPQWQJHOJNFQZBYMXYMOONDONWIELFMICEXZFWBVODSQFX"
 end
 end
@@ -137,7 +137,7 @@ end
     correct_message = enigma_styled_text("This is a test message for testing the Bombe")
     
     for enigma in enigmas
-        encoded = encode(enigma, crack_message)
+        encoded = encode!(enigma, crack_message)
         if encoded == correct_message
             found = true
             break
@@ -157,7 +157,7 @@ end
     correct_message = enigma_styled_text("A long long message with no real meaning but it is important to test")
     
     for enigma in enigmas
-        encoded = encode(enigma, crack_message)
+        encoded = encode!(enigma, crack_message)
         if encoded == correct_message
             found = true
             break
@@ -180,7 +180,7 @@ end
     correct_message = enigma_styled_text("A Weatherreport It is very nice outside so be friendly")
     
     for enigma in enigmas
-        encoded = encode(enigma, crack_message)
+        encoded = encode!(enigma, crack_message)
         if encoded == correct_message
             found = true
             break
@@ -201,7 +201,7 @@ end
     @test length(enigmas) >= 1
 
     for enigma in enigmas
-        encoded = encode(enigma, crack_message)
+        encoded = encode!(enigma, crack_message)
         encoded_str = replace(encoded, " "=>"")
         @test findfirst(hint_part, encoded_str[10:40]) !== nothing
     end
@@ -220,7 +220,7 @@ end
     correct_message = enigma_styled_text("Often it is easy but sometimes it is hard to crack because the first word does not give enough hint")
 
     for enigma in enigmas
-        encoded = encode(enigma, crack_message)
+        encoded = encode!(enigma, crack_message)
         if encoded == correct_message
             found = true
             break
