@@ -1,4 +1,7 @@
 [![codecov](https://codecov.io/gh/Wikunia/Enigma.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Wikunia/Enigma.jl)
+[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://wikunia.github.io/Enigma.jl/dev)
+
+[Blog post](https://opensourc.es/blog/enigma-and-bombe)
 
 # Enigma
 
