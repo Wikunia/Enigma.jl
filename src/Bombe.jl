@@ -28,7 +28,7 @@ function BombeMachine(secret::String, hint::String)
     secret = uppercase(replace(secret, r"[^a-zA-Z]" => ""))
     hint   = uppercase(replace(hint, r"[^a-zA-Z]" => ""))
     return BombeMachine(collect(1:5), collect(1:5), collect(1:5), collect(1:26), collect(1:26), collect(1:26),
-                        collect(1:3), secret, hint, 1:(length(secret)-length(hint)), false)
+                        collect(1:3), secret, hint, 1:(length(secret)-length(hint)+1), false)
 end
 
 """
@@ -124,6 +124,7 @@ Return possible enigma settings to understand the secret message.
 function run_cracking(bombe::BombeMachine; log=true)
     secret = bombe.secret
     hint = bombe.hint
+    log && println("len hint: ", length(hint))
     log && println("len secret: ", length(secret))
     log && println("Hint_positions: ",bombe.hint_positions)
     enigma = EnigmaMachine()
@@ -409,6 +410,7 @@ function get_possible_positions(bombe::BombeMachine)
     possible_positions = []
     hint = bombe.hint
     secret = bombe.secret
+    println("bombe.hint_positions: ", bombe.hint_positions)
     for p in bombe.hint_positions
         possible = true
         for i=0:length(hint)-1

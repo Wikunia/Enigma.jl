@@ -3,10 +3,10 @@ class Enigma {
         this.step_size = step_size;
         this.plugboard = new Plugboard(this, step_size);
         this.rotors = [];
-        this.rotors.push(new Rotor(this, 1,1, 10, step_size));
-        this.rotors.push(new Rotor(this, 2,2, 15, step_size));
-        this.rotors.push(new Rotor(this, 3,3,  9, step_size));
-        this.ukw = new UKW(this, 1, step_size*2);
+        this.rotors.push(new Rotor(this, 1,2, 10, step_size));
+        this.rotors.push(new Rotor(this, 2,5, 20, step_size));
+        this.rotors.push(new Rotor(this, 3,1, 19, step_size));
+        this.ukw = new UKW(this, 1, step_size);
     }
     show() {
         this.plugboard.show();
@@ -18,6 +18,15 @@ class Enigma {
 
     set_plugboard(str) {
         this.plugboard.set(str);
+    }
+
+    change_step_size(val) {
+        this.step_size = val;
+        this.plugboard.step_size = val;
+        for (let r = 0; r < 3; r++) {
+            this.rotors[r].step_size = val;
+        }
+        this.ukw.step_size = val*2;
     }
 
     update(t) {
@@ -98,7 +107,7 @@ class Enigma {
         let letter_idx = i+rotation;
         letter_idx %= 26;
         let letter = String.fromCharCode(65+letter_idx);
-        text(letter, left-letter_box_size+7, bottom-letter_box_size*i-5+shifted);
+        text(letter, left-letter_box_size+10, bottom-letter_box_size*i-10+shifted);
     }
 
     plot_box_and_letter_right(left, c_width, bottom, letter_box_size, i, rotation, mark, shifted=0) {
@@ -115,7 +124,7 @@ class Enigma {
         let letter_idx = i+rotation;
         letter_idx %= 26;
         let letter = String.fromCharCode(65+letter_idx);
-        text(letter, left+c_width+7, bottom-letter_box_size*i-5+shifted);
+        text(letter, left+c_width+10, bottom-letter_box_size*i-10+shifted);
     }
 
     plot_right_minus(left, width, bottom, letter_box_size, i, shifted, rotation, mark) {

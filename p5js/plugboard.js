@@ -1,10 +1,10 @@
 class Plugboard {
     constructor(enigma, step_size) {
-        this.width = 130;
+        this.width = 170;
         this.mapping = [...Array(26).keys()];
         this.right_idx = -1;
         this.left_idx_bw = -1;
-        this.letter_box_size = 25;
+        this.letter_box_size = 35;
         this.left = width-300;
         this.top = 60;
         this.bottom = this.top+this.letter_box_size*26;
@@ -57,7 +57,7 @@ class Plugboard {
         if (!backwards) {
             return this.mapping[this.right_idx];
         } else {
-            return this.mapping[this.left_idx-1];
+            return this.mapping[this.left_idx_bw];
         }
     }
 
@@ -75,6 +75,10 @@ class Plugboard {
         // right block + letter
         if ((!backwards && t >= min_t) || (backwards && t >= min_t+this.step_size)) {
             this.enigma.plot_box_and_letter_right(left, this.width, bottom, letter_box_size, i, 0, true);
+            if (backwards && t == min_t+this.step_size) {
+                console.log("output: "+this.get_result(true))
+                secret += String.fromCharCode(this.get_result(true)+65);
+            }
         }
 
         // left block + letter

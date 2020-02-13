@@ -1,8 +1,8 @@
 class UKW {
     constructor(enigma, ukw, step_size) {
         this.enigma = enigma;
-        this.step_size = step_size;
-        this.width = 130;
+        this.step_size = step_size*2;
+        this.width = 170;
         this.right_idx = -1;
         let mappings = [
             [5, 10, 13, 26, 1, 12, 25, 24, 22, 2, 23, 6, 3, 18, 17, 21, 15, 14, 20, 19, 16, 9, 11, 8, 7, 4],
@@ -10,8 +10,8 @@ class UKW {
             [6, 22, 16, 10, 9, 1, 15, 25, 5, 4, 18, 26, 24, 23, 7, 3, 20, 11, 21, 17, 19, 2, 14, 13, 8, 12]
         ];
         this.mapping = mappings[ukw-1].map(i=>i-1);
-        this.letter_box_size = 25;
-        this.left = width-300-4*(60+this.width);
+        this.letter_box_size = 35;
+        this.left = width-300-4*(80+this.width);
         this.top = 60;
         this.bottom = this.top+this.letter_box_size*26;
     }

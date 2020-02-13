@@ -2,7 +2,7 @@ class Rotor {
     constructor(enigma, order, rotor_nr, position, step_size) {
         this.enigma = enigma;
         this.step_size = step_size;
-        this.width = 130;
+        this.width = 170;
         this.order = order;
         this.rev_order = [3,2,1][order-1];
         this.rotor_nr = rotor_nr;
@@ -22,8 +22,8 @@ class Rotor {
         this.mapping = mappings[this.rotor_nr-1].map(i=>i-1);
         this.mapping_bw = this.get_backward_mapping();
 
-        this.letter_box_size = 25;
-        this.left = width-300-this.rev_order*(60+this.width);
+        this.letter_box_size = 35;
+        this.left = width-300-this.rev_order*(80+this.width);
         this.top = 60;
         this.bottom = this.top+this.letter_box_size*26;
     }
@@ -103,7 +103,7 @@ class Rotor {
         
         // need to overwrite middle gray
         fill(200);
-        let shifted = this.letter_box_size*(t-min_t)/this.step_size
+        let shifted = Math.round(this.letter_box_size*(t-min_t)/this.step_size)
         rect(left, top, this.width, letter_box_size*26+shifted);
 
         for (let i = 0; i < 26; i++) {
