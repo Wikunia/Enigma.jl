@@ -28,7 +28,7 @@ function BombeMachine(secret::String, hint::String)
     secret = uppercase(replace(secret, r"[^a-zA-Z]" => ""))
     hint   = uppercase(replace(hint, r"[^a-zA-Z]" => ""))
     return BombeMachine(collect(1:5), collect(1:5), collect(1:5), collect(1:26), collect(1:26), collect(1:26),
-                        collect(1:3), secret, hint, 1:(length(secret)-length(hint)), false)
+                        collect(1:3), secret, hint, 1:length(secret)-length(hint)+1, false)
 end
 
 """
