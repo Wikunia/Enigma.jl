@@ -23,24 +23,38 @@ end
 include("Bombe.jl")
 include("EnigmaVisMakie.jl")
 
+"""
+    EnigmaMachine()
+
+Return a EnigmaMachine in the starting position: Rotors I,II,III, UKW A and rotor positions 1,1,1 (A,A,A)
+"""
 function EnigmaMachine()
     return EnigmaMachine(1,2,3,1)
 end
 
 const possible_ukw = [
-    "A" => [05, 10, 13, 26, 01, 12, 25, 24, 22, 02, 23, 06, 03, 18, 17, 21, 15, 14, 20, 19, 16, 09, 11, 08, 07, 04],
-    "B" => [25, 18, 21, 08, 17, 19, 12, 04, 16, 24, 14, 07, 15, 11, 13, 09, 05, 02, 06, 26, 03, 23, 22, 10, 01, 20],
-    "C" => [06, 22, 16, 10, 09, 01, 15, 25, 05, 04, 18, 26, 24, 23, 07, 03, 20, 11, 21, 17, 19, 02, 14, 13, 08, 12],
+    Dict(:name => "A", :mapping => [05, 10, 13, 26, 01, 12, 25, 24, 22, 02, 23, 06, 03, 18, 17, 21, 15, 14, 20, 19, 16, 09, 11, 08, 07, 04]),
+    Dict(:name => "B", :mapping => [25, 18, 21, 08, 17, 19, 12, 04, 16, 24, 14, 07, 15, 11, 13, 09, 05, 02, 06, 26, 03, 23, 22, 10, 01, 20]),
+    Dict(:name => "C", :mapping => [06, 22, 16, 10, 09, 01, 15, 25, 05, 04, 18, 26, 24, 23, 07, 03, 20, 11, 21, 17, 19, 02, 14, 13, 08, 12])
 ]
 
 const possible_rotors = [
-    "I"   => [05, 11, 13, 06, 12, 07, 04, 17, 22, 26, 14, 20, 15, 23, 25, 08, 24, 21, 19, 16, 01, 09, 02, 18, 03, 10],
-    "II"  => [01, 10, 04, 11, 19, 09, 18, 21, 24, 02, 12, 08, 23, 20, 13, 03, 17, 07, 26, 14, 16, 25, 06, 22, 15, 05],
-    "III" => [02, 04, 06, 08, 10, 12, 03, 16, 18, 20, 24, 22, 26, 14, 25, 05, 09, 23, 07, 01, 11, 13, 21, 19, 17, 15],
-    "IV"  => [05, 19, 15, 22, 16, 26, 10, 01, 25, 17, 21, 09, 18, 08, 24, 12, 14, 06, 20, 07, 11, 04, 03, 13, 23, 02],
-    "V"   => [22, 26, 02, 18, 07, 09, 20, 25, 21, 16, 19, 04, 14, 08, 12, 24, 01, 23, 13, 10, 17, 15, 06, 05, 03, 11]
+    Dict(:name => "I", 
+         :mapping => [05, 11, 13, 06, 12, 07, 04, 17, 22, 26, 14, 20, 15, 23, 25, 08, 24, 21, 19, 16, 01, 09, 02, 18, 03, 10],
+         :rotation_point => 18),
+    Dict(:name => "II",
+         :mapping => [01, 10, 04, 11, 19, 09, 18, 21, 24, 02, 12, 08, 23, 20, 13, 03, 17, 07, 26, 14, 16, 25, 06, 22, 15, 05],
+         :rotation_point => 6),
+    Dict(:name => "III",
+         :mapping => [02, 04, 06, 08, 10, 12, 03, 16, 18, 20, 24, 22, 26, 14, 25, 05, 09, 23, 07, 01, 11, 13, 21, 19, 17, 15],
+         :rotation_point => 23),
+    Dict(:name => "IV",
+         :mapping => [05, 19, 15, 22, 16, 26, 10, 01, 25, 17, 21, 09, 18, 08, 24, 12, 14, 06, 20, 07, 11, 04, 03, 13, 23, 02],
+         :rotation_point => 11),
+    Dict(:name => "V",
+         :mapping => [22, 26, 02, 18, 07, 09, 20, 25, 21, 16, 19, 04, 14, 08, 12, 24, 01, 23, 13, 10, 17, 15, 06, 05, 03, 11],
+         :rotation_point => 1)
 ]
-const rotation_points = [18 06 23 11 01]
 
 function get_backward_mapping(order::Vector{Int})
     backward_mp = zeros(Int, 26)
@@ -54,32 +68,64 @@ function Rotor(name::String, order::Int, mapping::Vector{Int}, position::Int, ro
     return Rotor(name, order, mapping, get_backward_mapping(mapping), position, rotation_point)
 end
 
-function EnigmaMachine(r1::Int, r2::Int, r3::Int, ukw::Int; p1=1, p2=1, p3=1)
-    rotor_1 = Rotor(possible_rotors[r1].first, 1, possible_rotors[r1].second, p1, rotation_points[r1])
-    rotor_2 = Rotor(possible_rotors[r2].first, 2, possible_rotors[r2].second, p2, rotation_points[r2])
-    rotor_3 = Rotor(possible_rotors[r3].first, 3, possible_rotors[r3].second, p3, rotation_points[r3])
+"""
+    EnigmaMachine(r1::Int, r2::Int, r3::Int, ukw::Int; p1=1, p2=1, p3=1)
 
-    return EnigmaMachine(collect(1:26), (rotor_1,rotor_2,rotor_3), UKW(possible_ukw[ukw].first, possible_ukw[ukw].second))
+Creates an EnigmaMachine with the following setting:\n
+Rotor ids from left to right: r1, r2, r3\n
+r1=1 would be setting the left most rotor to the rotor I\n
+The reflector ( = ukw = Umkehrwalze) is 1,2,3 as well and correspond to the ukws A,B and C\n 
+Additionally the rotor positions can be set using p1,p2 and p3 for the three rotors\n
+Return the created EnigmaMachine
+"""
+function EnigmaMachine(r1::Int, r2::Int, r3::Int, ukw::Int; p1=1, p2=1, p3=1)
+    rotor_1 = Rotor(possible_rotors[r1][:name], 1, possible_rotors[r1][:mapping], p1, possible_rotors[r1][:rotation_point])
+    rotor_2 = Rotor(possible_rotors[r2][:name], 2, possible_rotors[r2][:mapping], p2, possible_rotors[r2][:rotation_point])
+    rotor_3 = Rotor(possible_rotors[r3][:name], 3, possible_rotors[r3][:mapping], p3, possible_rotors[r3][:rotation_point])
+
+    return EnigmaMachine(collect(1:26), (rotor_1,rotor_2,rotor_3), UKW(possible_ukw[ukw][:name], possible_ukw[ukw][:mapping]))
 end
 
+"""
+    set_rotors!(enigma::EnigmaMachine, r1, r2, r3)
+
+Set the rotors of enigma to r1, r2 and r3 from left to right.
+"""
 function set_rotors!(enigma::EnigmaMachine, r1, r2, r3)
-    rotor_1 = Rotor(possible_rotors[r1].first, 1, possible_rotors[r1].second, enigma.rotors[1].position, rotation_points[r1])
-    rotor_2 = Rotor(possible_rotors[r2].first, 2, possible_rotors[r2].second, enigma.rotors[2].position, rotation_points[r2])
-    rotor_3 = Rotor(possible_rotors[r3].first, 3, possible_rotors[r3].second, enigma.rotors[3].position, rotation_points[r3])
+    rotor_1 = Rotor(possible_rotors[r1][:name], 1, possible_rotors[r1][:mapping], enigma.rotors[1].position, possible_rotors[r1][:rotation_point])
+    rotor_2 = Rotor(possible_rotors[r2][:name], 2, possible_rotors[r2][:mapping], enigma.rotors[2].position, possible_rotors[r2][:rotation_point])
+    rotor_3 = Rotor(possible_rotors[r3][:name], 3, possible_rotors[r3][:mapping], enigma.rotors[3].position, possible_rotors[r3][:rotation_point])
 
     enigma.rotors = (rotor_1, rotor_2, rotor_3)
 end
 
+"""
+    set_ukw!(enigma::EnigmaMachine, ukw)
+
+Set the reflector (=Umkehrwalze = UKW) of the enigma. Currently ukw can be 1,2,3 for UKW A, UKW and UKW C
+"""
 function set_ukw!(enigma::EnigmaMachine, ukw)
-    enigma.ukw = UKW(possible_ukw[ukw].first, possible_ukw[ukw].second)
+    enigma.ukw = UKW(possible_ukw[ukw][:name], possible_ukw[ukw][:mapping])
 end
 
-function set_rotor_positions!(enigma::EnigmaMachine, p1, p2, p3)
+"""
+    set_rotor_positions!(enigma::EnigmaMachine, p1::Int, p2::Int, p3::Int)
+
+Set the rotor positions from left to right.
+"""
+function set_rotor_positions!(enigma::EnigmaMachine, p1::Int, p2::Int, p3::Int)
     enigma.rotors[1].position = p1
     enigma.rotors[2].position = p2
     enigma.rotors[3].position = p3
 end
 
+"""
+    set_plugboard!(enigma::EnigmaMachine, setting::Vector{Tuple{Int,Int}})
+
+Change the plugboard of the enigma and set it to the new setting.\n
+`[(1,2), (3,4)]` would mean that there are two plugs one connecting A and B and one connecting C and D.\n
+See also `set_plugboard(enigma::EnigmaMachine, setting::String)`
+"""
 function set_plugboard!(enigma::EnigmaMachine, setting::Vector{Tuple{Int,Int}})
     for i=1:26
         enigma.plugboard[i] = i
@@ -90,6 +136,13 @@ function set_plugboard!(enigma::EnigmaMachine, setting::Vector{Tuple{Int,Int}})
     end
 end
 
+"""
+    set_plugboard!(enigma::EnigmaMachine, setting::String)
+
+Change the plugboard of the enigma and set it to the new setting.\n
+`AB BC` would mean that there are two plugs one connecting A and B and one connecting C and D.\n
+See also `set_plugboard(enigma::EnigmaMachine, setting::Vector{Tuple{Int,Int}})`
+"""
 function set_plugboard!(enigma::EnigmaMachine, setting::String)
     for i=1:26
         enigma.plugboard[i] = i
@@ -114,29 +167,32 @@ end
 function step_rotors!(enigma::EnigmaMachine)
     # right most rotor
     enigma.rotors[3].position += 1
-    enigma.rotors[3].position %= 26
+    enigma.rotors[3].position == 27 && (enigma.rotors[3].position = 1)
     if enigma.rotors[3].position == enigma.rotors[3].rotation_point
         enigma.rotors[2].position += 1
-        enigma.rotors[2].position %= 26
+        enigma.rotors[2].position == 27 && (enigma.rotors[2].position = 1)
         if enigma.rotors[2].position == enigma.rotors[2].rotation_point
             enigma.rotors[1].position += 1
-            enigma.rotors[1].position %= 26
+            enigma.rotors[1].position == 27 && (enigma.rotors[1].position = 1)
         end
     elseif enigma.rotors[2].position+1 == enigma.rotors[2].rotation_point
         enigma.rotors[2].position += 1
-        enigma.rotors[2].position %= 26
+        enigma.rotors[2].position == 27 && (enigma.rotors[2].position = 1)
         enigma.rotors[1].position += 1
-        enigma.rotors[1].position %= 26
+        enigma.rotors[1].position == 27 && (enigma.rotors[1].position = 1)
     end
 end
 
 function index_connected_to(rotor, index; backward=false)
-    index = (index+25+rotor.position-1) % 26+1
+    # index and rotor position are 1 index based
+    # turning the rotor back to get the actual index
+    index = (index-1+rotor.position-1) % 26+1
     if !backward
         through_rotor = rotor.mapping[index]
     else
         through_rotor = rotor.mapping_bw[index]
     end
+    # turning the rotor again to translate the index into the next rotor
     result = through_rotor-rotor.position+1
     result = (result-1 + 26) % 26 + 1
     return result
@@ -163,7 +219,14 @@ function encode_single(enigma::EnigmaMachine, c::Char)
     return Char(number+64)
 end
 
-function encode(enigma::EnigmaMachine, s::String; input_validation=true, output_style=:enigma)
+"""
+    encode!(enigma::EnigmaMachine, s::String; input_validation=true, output_style=:enigma)
+
+If all chars in the string are uppercase letters (so no spaces) then `input_validation` can be set to false for a bit speed up.\n
+The default output consists of blocks of five letters. If you don't want the spaces you can set `output_style=false`.\n
+Return the string encoded with the enigma. 
+"""
+function encode!(enigma::EnigmaMachine, s::String; input_validation=true, output_style=:enigma)
     if input_validation
         s = replace(s, r"[^a-zA-Z]" => "")
         s = uppercase(s)
@@ -176,13 +239,24 @@ function encode(enigma::EnigmaMachine, s::String; input_validation=true, output_
     output_style == :plain && return result
 end
 
-function decode(enigma::EnigmaMachine, s::String; input_validation=true, output_style=:enigma)
-    return encode(enigma, s; input_validation=input_validation, output_style=output_style)
+"""
+    decode!(enigma::EnigmaMachine, s::String; input_validation=true, output_style=:enigma)
+
+Does the same as encode ;)
+"""
+function decode!(enigma::EnigmaMachine, s::String; input_validation=true, output_style=:enigma)
+    return encode!(enigma, s; input_validation=input_validation, output_style=output_style)
 end
 
+"""
+    enigma_styled_text(text::String)
+
+Return creates an enigma styled text which means it replaces all chars which are not letters
+and makes them uppercase. It also makes blocks of five letters for better or worse readability :D
+"""
 function enigma_styled_text(text::String)
     return string(strip(replace(uppercase(replace(text, r"[^a-zA-Z]"=>"")), r"(.{5})" => s"\1 ")))
 end
 
-export EnigmaMachine, encode, decode, set_rotors!, set_rotor_positions!, set_ukw!, set_plugboard!, enigma_styled_text
+export EnigmaMachine, encode!, decode!, set_rotors!, set_rotor_positions!, set_ukw!, set_plugboard!, enigma_styled_text
 end 

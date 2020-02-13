@@ -1,4 +1,4 @@
-using Makie, Colors
+using Makie, Colors, AbstractPlotting
 
 function rectangle(x, y, w, h)
     return Point2f0[[x, y], [x+w, y], [x+w, y+h], [x, y+h]]
@@ -366,6 +366,8 @@ function update_ukw(scene::Makie.Scene, node, ukw; right_idx=nothing)
 end
 
 function animate_enigma(enigma, letter)
+    # AbstractPlotting.use_display[] = false
+    # println("hi")
     letter = uppercase(letter)
     letter_idx = Int(letter-64)
     step_rotors!(enigma)

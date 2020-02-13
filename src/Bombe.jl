@@ -19,6 +19,11 @@ mutable struct BombeMachine
     check_ambiguous   :: Bool 
 end
 
+"""
+    BombeMachine(secret::String, hint::String)
+
+Return a Bombe with a given secret and a hint.
+"""
 function BombeMachine(secret::String, hint::String)
     secret = uppercase(replace(secret, r"[^a-zA-Z]" => ""))
     hint   = uppercase(replace(hint, r"[^a-zA-Z]" => ""))
@@ -26,44 +31,96 @@ function BombeMachine(secret::String, hint::String)
                         collect(1:3), secret, hint, 1:(length(secret)-length(hint)), false)
 end
 
+"""
+    enable_ambiguous!(bombe::BombeMachine)
+
+Be sure that the actual message gets found. This takes often much longer and uses lots of RAM :/\n
+I would say most of the time it is not necessary. 
+"""
 function enable_ambiguous!(bombe::BombeMachine)
     bombe.check_ambiguous = true
 end
 
+"""
+    disable_ambiguous!(bombe::BombeMachine)
+
+If you enabled ambiguous by mistake and want to disable it again ;)
+"""
 function disable_ambiguous!(bombe::BombeMachine)
     bombe.check_ambiguous = false
 end
 
+"""
+    set_possible_rotors!(bombe::BombeMachine, rotor_1, rotor_2, rotor_3)    
+
+Set the rotors that should be checked. Each rotor can be either an integer or a vector of integers (or range). \n
+i.e `set_possible_rotors!(bombe::BombeMachine, 1, 2:3, [4,5])`
+"""
 function set_possible_rotors!(bombe::BombeMachine, rotor_1, rotor_2, rotor_3)
     bombe.rotor_1 = isa(rotor_1, Int) ? [rotor_1] : rotor_1
     bombe.rotor_2 = isa(rotor_2, Int) ? [rotor_2] : rotor_2
     bombe.rotor_3 = isa(rotor_3, Int) ? [rotor_3] : rotor_3
 end
 
+"""
+    set_possible_rotor_positions!(bombe::BombeMachine, rp1, rp2, rp3)
+
+Set the rotor positions that should be checked. Each rotor position can be either an integer or a vector of integers (or range). \n
+i.e `set_possible_rotor_positions!(bombe::BombeMachine, 1, 1:26, [20,22,25])``
+"""
 function set_possible_rotor_positions!(bombe::BombeMachine, rp1, rp2, rp3)
     bombe.rotor_1_pos = isa(rp1, Int) ? [rp1] : rp1
     bombe.rotor_2_pos = isa(rp2, Int) ? [rp2] : rp2
     bombe.rotor_3_pos = isa(rp3, Int) ? [rp3] : rp3
 end
 
+"""
+    set_possible_ukws!(bombe::BombeMachine, ukws)
+
+Set the possible reflectors. `ukws` can be a single one or a vector.
+"""
 function set_possible_ukws!(bombe::BombeMachine, ukws)
     bombe.ukw = isa(ukws, Int) ? [ukws] : ukws
 end
 
+"""
+    set_possible_hint_positions!(bombe::BombeMachine, hint_positions)
+
+Set the positions in the secret the hint might appeared.\n
+i.e if you're sure it's the first word you can use `set_possible_hint_positions!(bombe::BombeMachine, 1)` or \n
+if you know that it is at least in the beginning you can use something like `set_possible_hint_positions!(bombe::BombeMachine, 1:20)`.
+"""
 function set_possible_hint_positions!(bombe::BombeMachine, hint_positions)
     bombe.hint_positions = isa(hint_positions, Int) ? [hint_positions] : hint_positions 
 end
 
-function set_hint!(bombe::BombeMachine, hint)
+"""
+    set_hint!(bombe::BombeMachine, hint::String)
+
+This changes the hint used for cracking.
+"""
+function set_hint!(bombe::BombeMachine, hint::String)
     bombe.hint = uppercase(replace(hint, r"[^a-zA-Z]" => ""))
     bombe.hint_positions = 1:(length(bombe.secret)-length(bombe.hint))
 end
 
-function set_secret!(bombe::BombeMachine, secret)
+"""
+    set_secret!(bombe::BombeMachine, secret::String)
+
+This changes the secret used for cracking.
+"""
+function set_secret!(bombe::BombeMachine, secret::String)
     bombe.secret = uppercase(replace(secret, r"[^a-zA-Z]" => ""))
     bombe.hint_positions = 1:(length(bombe.secret)-length(bombe.hint))
 end
 
+"""
+    run_cracking(bombe::BombeMachine; log=true)
+
+Start the cracking process.\n
+Does not give you all possibilities if you haven't run `enable_ambiguous!` but this is normally not reasonable.\n
+Return possible enigma settings to understand the secret message.
+"""
 function run_cracking(bombe::BombeMachine; log=true)
     secret = bombe.secret
     hint = bombe.hint
@@ -106,7 +163,9 @@ function run_cracking(bombe::BombeMachine; log=true)
                             break
                         end
                     end
-                    log && println("Tried: ukw: $ukw, Rotors: $r1, $r2, $r3 set to $r1p, $r2p, $r3p => New: $(length(possibilities))")
+                    if log && length(possibilities) > 0
+                        println("Tried up to: ukw: $ukw, Rotors: $r1, $r2, $r3 set to $r1p, $r2p, $r3p => New: $(length(possibilities))")
+                    end
                     for pi=1:length(possibilities)
                         possible_enigma = EnigmaMachine()
                         set_rotors!(possible_enigma, r1, r2, r3)
