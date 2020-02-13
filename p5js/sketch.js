@@ -10,7 +10,8 @@ function setup() {
   function draw() {
     background(220);
     if (i == 0) {
-      enigma.set_letter_idx(1);
+      // A
+      enigma.set_letter_idx(0);
     }
     
     enigma.show();

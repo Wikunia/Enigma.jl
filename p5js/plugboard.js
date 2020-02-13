@@ -1,9 +1,9 @@
 class Plugboard {
     constructor(enigma, step_size) {
         this.width = 130;
-        this.mapping = [...Array(26).keys()].map(i => i+1);
-        this.letter = -1;
-        this.letter_bw = -1;
+        this.mapping = [...Array(26).keys()];
+        this.right_idx = -1;
+        this.left_idx_bw = -1;
         this.letter_box_size = 25;
         this.left = width-300;
         this.top = 60;
@@ -37,7 +37,7 @@ class Plugboard {
         for (let i = 0; i < 26; i++) {
             // right to left
             let i_y = bottom-letter_box_size*i-letter_box_size/2;
-            let j = this.mapping[i]-1;
+            let j = this.mapping[i];
             let j_y = bottom-letter_box_size*j-letter_box_size/2;
             line(left+this.width-5, i_y, left+5, j_y);
         }
@@ -48,16 +48,16 @@ class Plugboard {
         for (let part of parts) {
             let i = part[0].charCodeAt(0)-65;
             let j = part[1].charCodeAt(0)-65;
-            this.mapping[i] = j+1;
-            this.mapping[j] = i+1;
+            this.mapping[i] = j;
+            this.mapping[j] = i;
         }
     }
 
     get_result(backwards) {
         if (!backwards) {
-            return this.mapping[this.letter-1];
+            return this.mapping[this.right_idx];
         } else {
-            return this.mapping[this.letter_bw-1];
+            return this.mapping[this.left_idx-1];
         }
     }
 
@@ -65,11 +65,11 @@ class Plugboard {
         let letter_box_size = this.letter_box_size;
         let left = this.left;
         let bottom = this.bottom;
-        let i = this.letter -1;
-        let j = this.mapping[i]-1;
+        let i = this.right_idx;
+        let j = this.mapping[i];
         if (backwards) {
-            j = this.letter_bw -1;
-            i = this.mapping[j] -1;
+            j = this.left_idx_bw;
+            i = this.mapping[j];
         }
         
         // right block + letter

@@ -3,13 +3,13 @@ class UKW {
         this.enigma = enigma;
         this.step_size = step_size;
         this.width = 130;
-        this.letter = -1;
+        this.right_idx = -1;
         let mappings = [
             [5, 10, 13, 26, 1, 12, 25, 24, 22, 2, 23, 6, 3, 18, 17, 21, 15, 14, 20, 19, 16, 9, 11, 8, 7, 4],
             [25, 18, 21, 8, 17, 19, 12, 4, 16, 24, 14, 7, 15, 11, 13, 9, 5, 2, 6, 26, 3, 23, 22, 10, 1, 20],
             [6, 22, 16, 10, 9, 1, 15, 25, 5, 4, 18, 26, 24, 23, 7, 3, 20, 11, 21, 17, 19, 2, 14, 13, 8, 12]
         ];
-        this.mapping = mappings[ukw-1];
+        this.mapping = mappings[ukw-1].map(i=>i-1);
         this.letter_box_size = 25;
         this.left = width-300-4*(60+this.width);
         this.top = 60;
@@ -21,8 +21,8 @@ class UKW {
         let left = this.left;
         let top = this.top;
         let bottom = this.bottom;
-        let i = this.letter -1;
-        let j = this.mapping[i]-1;
+        let i = this.right_idx;
+        let j = this.mapping[i];
 
         rect(left, top, this.width, letter_box_size*26);
         for (let i = 0; i < 26; i++) {
@@ -47,7 +47,7 @@ class UKW {
         for (let i = 0; i < 26; i++) {
             // right to left
             let i_y = bottom-letter_box_size*i-letter_box_size/2+letter_box_size/4;
-            let j = this.mapping[i]-1;
+            let j = this.mapping[i];
             let j_y = bottom-letter_box_size*j-letter_box_size/2+letter_box_size/4;
             stroke(0);
             line(left+this.width-5, i_y, left+5, j_y);
@@ -60,15 +60,15 @@ class UKW {
     }
 
     get_result() {
-        return this.mapping[this.letter-1];
+        return this.mapping[this.right_idx];
     }
 
     update(min_t, t) {
         let letter_box_size = this.letter_box_size;
         let left = this.left;
         let bottom = this.bottom;
-        let i = this.letter -1;
-        let j = this.mapping[i]-1;
+        let i = this.right_idx;
+        let j = this.mapping[i];
         let half_step = this.step_size/2;
         
         // right block + letter under
