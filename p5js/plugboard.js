@@ -94,7 +94,7 @@ class Plugboard {
 
         // connection
         // right to left
-        if (!backwards) {
+        if (!backwards && t >= min_t) {
             let i_y = bottom-letter_box_size*i-letter_box_size/2;
             let j_y = bottom-letter_box_size*j-letter_box_size/2;
             let i_x = left+this.width-5;

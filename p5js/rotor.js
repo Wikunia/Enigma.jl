@@ -8,6 +8,7 @@ class Rotor {
         this.rotor_nr = rotor_nr;
         this.right_idx = -1;
         this.left_idx_bw = -1;
+        this.last_position = position;
         this.position = position;
         let mappings = [
             [5, 11, 13, 6, 12, 7, 4, 17, 22, 26, 14, 20, 15, 23, 25, 8, 24, 21, 19, 16, 1, 9, 2, 18, 3, 10],
@@ -16,6 +17,8 @@ class Rotor {
             [5, 19, 15, 22, 16, 26, 10, 1, 25, 17, 21, 9, 18, 8, 24, 12, 14, 6, 20, 7, 11, 4, 3, 13, 23, 2],
             [22, 26, 2, 18, 7, 9, 20, 25, 21, 16, 19, 4, 14, 8, 12, 24, 1, 23, 13, 10, 17, 15, 6, 5, 3, 11]
         ];
+        let rotation_points = [18, 6, 23, 11, 1];
+        this.rotation_point = rotation_points[this.rotor_nr-1]-1;
         this.mapping = mappings[this.rotor_nr-1].map(i=>i-1);
         this.mapping_bw = this.get_backward_mapping();
 
@@ -86,6 +89,63 @@ class Rotor {
             result %= 26;
             return result;
         }
+    }
+
+    rotate(min_t, t) {
+        if (this.position == this.last_position)
+            return
+        if (t > min_t + this.step_size)
+            return
+        let letter_box_size = this.letter_box_size;
+        let left = this.left;
+        let top = this.top;
+        let bottom = this.bottom;
+        
+        // need to overwrite middle gray
+        fill(200);
+        let shifted = this.letter_box_size*(t-min_t)/this.step_size
+        rect(left, top, this.width, letter_box_size*26+shifted);
+
+        for (let i = 0; i < 26; i++) {
+            this.enigma.plot_box_and_letter_right(left, this.width, bottom, letter_box_size, i, this.last_position, false, shifted);
+        }
+        for (let i = 0; i < 26; i++) {
+            this.enigma.plot_box_and_letter_left(left, bottom, letter_box_size, i, this.last_position, false, shifted);
+        }
+
+        // right -
+        for (let i = 0; i < 26; i++) {
+            this.enigma.plot_right_minus(left, this.width, bottom, letter_box_size, i, shifted, this.position, false);
+        }
+        // left -
+        for (let i = 0; i < 26; i++) {
+            this.enigma.plot_left_minus(left, bottom, letter_box_size, i, shifted, this.position, false);
+        }
+    
+
+        // connections
+        for (let i = 0; i < 26; i++) {
+            // right to left
+            let i_y = bottom-letter_box_size*i-letter_box_size/2;
+            let letter_idx = i+this.last_position;
+            letter_idx %= 26;
+            let j = this.mapping[letter_idx];
+            j = j-this.last_position+26;
+            j %= 26;
+            let j_y = bottom-letter_box_size*j-letter_box_size/2;
+            line(left+this.width-5, i_y+shifted, left+5, j_y+shifted);
+        }
+        copy(left-letter_box_size-1, bottom, this.width+2*(letter_box_size+1), shifted-1,
+             left-letter_box_size-1, top, this.width+2*(letter_box_size+1), shifted-1)
+        stroke(0)
+        strokeWeight(1)
+        line(left, bottom, left+this.width, bottom)
+
+        // background at the bottom such that moving the rotor down is not visible
+        fill(220);
+        strokeWeight(0)
+        rect(left-letter_box_size-1, bottom, this.width+2*(letter_box_size+1), letter_box_size);
+        strokeWeight(1)
     }
 
     update(min_t, t, backwards) {
