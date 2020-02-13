@@ -1,44 +1,46 @@
 class UKW {
-    constructor(ukw) {
+    constructor(enigma, ukw, step_size) {
+        this.enigma = enigma;
+        this.step_size = step_size;
         this.width = 130;
+        this.letter = -1;
         let mappings = [
             [5, 10, 13, 26, 1, 12, 25, 24, 22, 2, 23, 6, 3, 18, 17, 21, 15, 14, 20, 19, 16, 9, 11, 8, 7, 4],
             [25, 18, 21, 8, 17, 19, 12, 4, 16, 24, 14, 7, 15, 11, 13, 9, 5, 2, 6, 26, 3, 23, 22, 10, 1, 20],
             [6, 22, 16, 10, 9, 1, 15, 25, 5, 4, 18, 26, 24, 23, 7, 3, 20, 11, 21, 17, 19, 2, 14, 13, 8, 12]
         ];
         this.mapping = mappings[ukw-1];
+        this.letter_box_size = 25;
+        this.left = width-300-4*(60+this.width);
+        this.top = 60;
+        this.bottom = this.top+this.letter_box_size*26;
     }
     show() {
         fill(200);
-        let letter_box_size = 25;
-        let left = width-300-4*(60+this.width);
-        let top = 60;
-        let bottom = top+letter_box_size*26;
+        let letter_box_size = this.letter_box_size;
+        let left = this.left;
+        let top = this.top;
+        let bottom = this.bottom;
+        let i = this.letter -1;
+        let j = this.mapping[i]-1;
 
         rect(left, top, this.width, letter_box_size*26);
         for (let i = 0; i < 26; i++) {
-            fill(100);
-            rect(left-letter_box_size, bottom-letter_box_size*(i+1), letter_box_size, letter_box_size);
-            rect(left+this.width, bottom-letter_box_size*(i+1), letter_box_size, letter_box_size);
+            this.enigma.plot_box_and_letter_right(left, this.width, bottom, letter_box_size, i, 0, false);
         }
         for (let i = 0; i < 26; i++) {
-            textSize(15);
-            fill(0);
-            text(String.fromCharCode(65+i), left-letter_box_size+7, bottom-letter_box_size*i-5);
-            text(String.fromCharCode(65+i), left+this.width+7, bottom-letter_box_size*i-5);
+            this.enigma.plot_box_and_letter_left(left, bottom, letter_box_size, i, 0, false);
         }
 
         // right -
         for (let i = 0; i < 26; i++) {
-            stroke(0);
-            line(left+this.width-5, bottom-letter_box_size*i-letter_box_size/2+letter_box_size/4, left+this.width, bottom-letter_box_size*i-letter_box_size/2+letter_box_size/4);
-            line(left+this.width-5, bottom-letter_box_size*i-letter_box_size/2-letter_box_size/4, left+this.width, bottom-letter_box_size*i-letter_box_size/2-letter_box_size/4);
+            this.enigma.plot_right_minus(left, this.width, bottom, letter_box_size, i, letter_box_size/4, 0, false);
+            this.enigma.plot_right_minus(left, this.width, bottom, letter_box_size, i, -letter_box_size/4, 0, false);
         }
         // left -
         for (let i = 0; i < 26; i++) {
-            stroke(0);
-            line(left, bottom-letter_box_size*i-letter_box_size/2+letter_box_size/4, left+5, bottom-letter_box_size*i-letter_box_size/2+letter_box_size/4);
-            line(left, bottom-letter_box_size*i-letter_box_size/2-letter_box_size/4, left+5, bottom-letter_box_size*i-letter_box_size/2-letter_box_size/4);
+            this.enigma.plot_left_minus(left, bottom, letter_box_size, i, letter_box_size/4, 0, false);
+            this.enigma.plot_left_minus(left, bottom, letter_box_size, i, -letter_box_size/4, 0, false);
         }
 
         // connections
@@ -54,6 +56,81 @@ class UKW {
             i_y = bottom-letter_box_size*i-letter_box_size/2-letter_box_size/4;
             stroke(0);
             line(left+this.width-5, i_y, left+5, i_y);
+        }
+    }
+
+    get_result() {
+        return this.mapping[this.letter-1];
+    }
+
+    update(min_t, t) {
+        let letter_box_size = this.letter_box_size;
+        let left = this.left;
+        let bottom = this.bottom;
+        let i = this.letter -1;
+        let j = this.mapping[i]-1;
+        let half_step = this.step_size/2;
+        
+        // right block + letter under
+        if (t >= min_t) {
+            this.enigma.plot_box_and_letter_right(left, this.width, bottom, letter_box_size, i, 0, true);
+        }
+
+        if (t >= min_t+this.step_size) {
+            this.enigma.plot_box_and_letter_right(left, this.width, bottom, letter_box_size, j, 0, true);
+        }
+
+        // left block + letter
+        if (t >= min_t+half_step) {
+            this.enigma.plot_box_and_letter_left(left, bottom, letter_box_size, j, 0, true);
+        }
+        // right -
+        if ((t >= min_t+1)) {
+            this.enigma.plot_right_minus(left, this.width, bottom, letter_box_size, i, letter_box_size/4, 0, true);
+        }
+        
+        // left -
+        if (t >= min_t+half_step-1) {
+            this.enigma.plot_left_minus(left, bottom, letter_box_size, j, letter_box_size/4, 0, true);
+        }
+        
+        // upper
+        // right -
+        if ((t >= min_t+this.step_size+1)) {
+            this.enigma.plot_right_minus(left, this.width, bottom, letter_box_size, j, -letter_box_size/4, 0, true);
+        }
+        
+        // left -
+        if (t >= min_t+half_step+1) {
+            this.enigma.plot_left_minus(left, bottom, letter_box_size, j, -letter_box_size/4, 0, true);
+        }
+
+        if (t >= min_t) {
+            let i_y = bottom-letter_box_size*i-letter_box_size/2+letter_box_size/4;
+            let j_y = bottom-letter_box_size*j-letter_box_size/2+letter_box_size/4;
+            let i_x = left+this.width-5;
+            let j_x = left+5;
+            let c_x = i_x+(j_x-i_x)*min(1, (t-min_t)/(half_step-2));
+            let c_y = i_y+(j_y-i_y)*min(1, (t-min_t)/(half_step-2));
+            stroke(255, 200, 0);
+            strokeWeight(2);
+            line(i_x, i_y, c_x, c_y);
+            stroke(0);
+            strokeWeight(1);
+        }
+
+        if (t >= min_t+half_step) {
+            let i_y = bottom-letter_box_size*j-letter_box_size/2-letter_box_size/4;
+            let j_y = bottom-letter_box_size*j-letter_box_size/2-letter_box_size/4;
+            let j_x = left+this.width-5;
+            let i_x = left+5;
+            let c_x = i_x+(j_x-i_x)*min(1, (t-min_t-half_step)/(half_step-2));
+            let c_y = i_y+(j_y-i_y)*min(1, (t-min_t-half_step)/(half_step-2));
+            stroke(255, 200, 0);
+            strokeWeight(2);
+            line(i_x, i_y, c_x, c_y);
+            stroke(0);
+            strokeWeight(1);
         }
     }
 }

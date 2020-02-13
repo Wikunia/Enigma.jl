@@ -9,14 +9,20 @@ function setup() {
   
   function draw() {
     background(220);
+    if (i == 0) {
+      enigma.set_letter_idx(1);
+    }
     
     enigma.show();
-    enigma.update(i);
+    if (i <= 600) {
+      enigma.update(i);
+    } 
     // console.log(i);
     i += 1;
 
-
-
+    if (i == 1000) {
+      i = 0;
+    }
 
     fps = frameRate();
     fill(0);
