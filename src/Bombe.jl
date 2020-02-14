@@ -124,6 +124,7 @@ Return possible enigma settings to understand the secret message.
 function run_cracking(bombe::BombeMachine; log=true)
     secret = bombe.secret
     hint = bombe.hint
+    log && println("len hint: ", length(hint))
     log && println("len secret: ", length(secret))
     log && println("Hint_positions: ",bombe.hint_positions)
     enigma = EnigmaMachine()
@@ -409,6 +410,7 @@ function get_possible_positions(bombe::BombeMachine)
     possible_positions = []
     hint = bombe.hint
     secret = bombe.secret
+    println("bombe.hint_positions: ", bombe.hint_positions)
     for p in bombe.hint_positions
         possible = true
         for i=0:length(hint)-1
