@@ -14,16 +14,23 @@ class UKW {
         this.left = width-300-4*(80+this.width);
         this.top = 60;
         this.bottom = this.top+this.letter_box_size*26;
+        let names = ["A", "B", "C"]
+        this.name = "UKW "+names[ukw-1];
     }
     show() {
-        fill(200);
         let letter_box_size = this.letter_box_size;
         let left = this.left;
         let top = this.top;
         let bottom = this.bottom;
         let i = this.right_idx;
         let j = this.mapping[i];
+        
+        textSize(30);
+        stroke(0);
+        fill(0);
+        text(this.name, left+30, top-10);
 
+        fill(200);
         rect(left, top, this.width, letter_box_size*26);
         for (let i = 0; i < 26; i++) {
             this.enigma.plot_box_and_letter_right(left, this.width, bottom, letter_box_size, i, 0, false);

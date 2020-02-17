@@ -3,10 +3,10 @@ class Enigma {
         this.step_size = step_size;
         this.plugboard = new Plugboard(this, step_size);
         this.rotors = [];
-        this.rotors.push(new Rotor(this, 1,2, 10, step_size));
-        this.rotors.push(new Rotor(this, 2,5, 20, step_size));
-        this.rotors.push(new Rotor(this, 3,1, 19, step_size));
-        this.ukw = new UKW(this, 1, step_size);
+        this.rotors.push(new Rotor(this, 1,1, 25, step_size));
+        this.rotors.push(new Rotor(this, 2,4, 1, step_size));
+        this.rotors.push(new Rotor(this, 3,3, 3, step_size));
+        this.ukw = new UKW(this, 2, step_size);
     }
     show() {
         this.plugboard.show();

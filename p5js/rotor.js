@@ -1,11 +1,11 @@
 class Rotor {
-    constructor(enigma, order, rotor_nr, position, step_size) {
+    constructor(enigma, order, nr, position, step_size) {
         this.enigma = enigma;
         this.step_size = step_size;
         this.width = 170;
         this.order = order;
         this.rev_order = [3,2,1][order-1];
-        this.rotor_nr = rotor_nr;
+        this.nr = nr;
         this.right_idx = -1;
         this.left_idx_bw = -1;
         this.last_position = position;
@@ -18,9 +18,11 @@ class Rotor {
             [22, 26, 2, 18, 7, 9, 20, 25, 21, 16, 19, 4, 14, 8, 12, 24, 1, 23, 13, 10, 17, 15, 6, 5, 3, 11]
         ];
         let rotation_points = [18, 6, 23, 11, 1];
-        this.rotation_point = rotation_points[this.rotor_nr-1]-1;
-        this.mapping = mappings[this.rotor_nr-1].map(i=>i-1);
+        this.rotation_point = rotation_points[this.nr-1]-1;
+        this.mapping = mappings[this.nr-1].map(i=>i-1);
         this.mapping_bw = this.get_backward_mapping();
+        let rotor_names = ["I","II","III","IV","V"]
+        this.name = "Rotor "+rotor_names[nr-1];
 
         this.letter_box_size = 35;
         this.left = width-300-this.rev_order*(80+this.width);
@@ -37,12 +39,16 @@ class Rotor {
     }
 
     show() {
-        fill(200);
         let letter_box_size = this.letter_box_size;
         let left = this.left;
         let top = this.top;
         let bottom = this.bottom;
-
+        textSize(30);
+        stroke(0);
+        fill(0);
+        text(this.name, left+30, top-10);
+        
+        fill(200);
         rect(left, top, this.width, letter_box_size*26);
         for (let i = 0; i < 26; i++) {
             this.enigma.plot_box_and_letter_right(left, this.width, bottom, letter_box_size, i, this.position, false);
@@ -94,8 +100,9 @@ class Rotor {
     rotate(min_t, t) {
         if (this.position == this.last_position)
             return
-        if (t > min_t + this.step_size)
+        if (t >= min_t + this.step_size)
             return
+
         let letter_box_size = this.letter_box_size;
         let left = this.left;
         let top = this.top;
