@@ -1,5 +1,6 @@
 let i = -1;
 let running = false;
+let rotate = false;
 let enigma;
 let letter;
 let typed = "";
@@ -14,7 +15,10 @@ function setup() {
     last_step_size = step_size_slider.value();
     
     enigma = new Enigma(step_size_slider.value());
-    enigma.set_plugboard("AW BJ CY DX EQ HL IO KS MU NR PT");
+    enigma.set_rotors(1, 3, 4);
+    enigma.set_rotor_positions(10, 9, 8, based=1);
+    enigma.set_ukw(3);
+    enigma.set_plugboard("AL CX DP FU GO HI JN MY VQ RW");
     letter = -1;
   }
 
@@ -32,7 +36,13 @@ function setup() {
         
         running = true;
         i = 0;
+        return
       }
+    }
+    if (mouseX >= step_size_slider.position().x+180) {
+      rotate = true;
+      running = true;
+      i = 0;
     }
   }
   
@@ -44,14 +54,30 @@ function setup() {
     text("Step size: ", 10, 220)
     rect(10, 235, 190, 20);
     enigma.show();
-    if (letter != -1 && i == 0) {
+    // enigma.plot_box_and_letter_left()
+    if (i == 0) {
       last_step_size = step_size_slider.value();
       enigma.change_step_size(step_size_slider.value());
-      enigma.set_letter_idx(letter);
-      typed += String.fromCharCode(letter+65)
+      if (!rotate){
+        enigma.set_letter_idx(letter);
+        typed += String.fromCharCode(letter+65)
+     }
     }
 
-    if (i >= 0) {
+    if (letter == -1 && rotate) {
+      if (i == 0) {
+        enigma.step_rotors();
+      }
+      for (let r=0; r <= 2; r++) {
+        enigma.rotors[r].rotate(0, i);
+      }
+      if (i == last_step_size) {
+        running = false;
+        rotate = false;
+      }
+    }
+
+    if (i >= 0 && letter != -1) {
       enigma.update(i);
     } 
     // console.log(i);
@@ -71,6 +97,7 @@ function setup() {
     textSize(20);
     text(typed, 10, 80)
     text(secret, 10, 170)
+
 
     // console.log("Fps: ", fps.toFixed(2))
     // noLoop();

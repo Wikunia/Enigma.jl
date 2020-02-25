@@ -5,18 +5,28 @@ class Plugboard {
         this.right_idx = -1;
         this.left_idx_bw = -1;
         this.letter_box_size = 35;
-        this.left = width-300;
+        this.left = width-250;
         this.top = 60;
         this.bottom = this.top+this.letter_box_size*26;
         this.step_size = step_size;
         this.enigma = enigma;
+        this.name = "Plugboard";
+        this.setting_str = "";
     }
     show() {
-        stroke(0);
-        fill(200);
+        
         let letter_box_size = this.letter_box_size;
         let left = this.left;
         let bottom = this.bottom;
+        let top = this.top;
+
+        textSize(30);
+        stroke(0);
+        fill(0);
+        text(this.name, left+10, top-10);
+
+        stroke(0);
+        fill(200);
 
         rect(left, this.top, this.width, letter_box_size*26);
         for (let i = 0; i < 26; i++) {
@@ -44,13 +54,17 @@ class Plugboard {
     }
 
     set(str) {
+        this.mapping = [...Array(26).keys()];
         let parts = str.split(" ");
         for (let part of parts) {
-            let i = part[0].charCodeAt(0)-65;
-            let j = part[1].charCodeAt(0)-65;
-            this.mapping[i] = j;
-            this.mapping[j] = i;
+            if (part.length) {
+                let i = part[0].charCodeAt(0)-65;
+                let j = part[1].charCodeAt(0)-65;
+                this.mapping[i] = j;
+                this.mapping[j] = i;
+            }
         }
+        this.setting_str = str;
     }
 
     get_result(backwards) {

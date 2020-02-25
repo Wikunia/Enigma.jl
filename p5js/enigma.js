@@ -3,9 +3,9 @@ class Enigma {
         this.step_size = step_size;
         this.plugboard = new Plugboard(this, step_size);
         this.rotors = [];
-        this.rotors.push(new Rotor(this, 1,2, 10, step_size));
-        this.rotors.push(new Rotor(this, 2,5, 20, step_size));
-        this.rotors.push(new Rotor(this, 3,1, 19, step_size));
+        this.rotors.push(new Rotor(this, 1,1, 1, step_size));
+        this.rotors.push(new Rotor(this, 2,2, 1, step_size));
+        this.rotors.push(new Rotor(this, 3,3, 1, step_size));
         this.ukw = new UKW(this, 1, step_size);
     }
     show() {
@@ -14,6 +14,22 @@ class Enigma {
             this.rotors[i].show();
         }
         this.ukw.show();
+    }
+
+    set_rotors(a,b,c) {
+        this.rotors[0].set_type(a);
+        this.rotors[1].set_type(b);
+        this.rotors[2].set_type(c);
+    }
+
+    set_rotor_positions(a,b,c, based=0) {
+        this.rotors[0].set_position(a, based);
+        this.rotors[1].set_position(b, based);
+        this.rotors[2].set_position(c, based);
+    }
+
+    set_ukw(ukw) {
+        this.ukw.set_type(ukw);
     }
 
     set_plugboard(str) {
@@ -29,7 +45,7 @@ class Enigma {
         this.ukw.step_size = val*2;
     }
 
-    update(t) {
+    update(t, stop=false) {
         let step = 0
         for (let r=0; r <= 2; r++) {
             this.rotors[r].rotate(step, t);
@@ -47,7 +63,13 @@ class Enigma {
             this.rotors[r-1].update(step, t, true);
             step += this.step_size;
         }
-        this.plugboard.update(step, t, true);
+        if (!stop) {
+            this.plugboard.update(step, t, true);
+        } 
+        if (stop && t >= step) {
+            return false;
+        }
+        return true;
     }
 
     step_rotors() {
@@ -71,6 +93,29 @@ class Enigma {
             this.rotors[0].position += 1
             this.rotors[0].position == 26 && (this.rotors[0].position = 0)
         }
+    }
+
+    step_rotors_bw() {
+        //  right most rotor
+        for (let r=0; r <= 2; r++) {
+            this.rotors[r].last_position = this.rotors[r].position;
+        }
+
+        if (this.rotors[2].position == this.rotors[2].rotation_point) {
+            if (this.rotors[1].position == this.rotors[1].rotation_point) {
+                this.rotors[0].position -= 1
+                this.rotors[0].position == -1 && (this.rotors[0].position = 25)
+            }
+            this.rotors[1].position -= 1
+            this.rotors[1].position == -1 && (this.rotors[1].position = 25)   
+        } else if (this.rotors[1].position+1 == this.rotors[1].rotation_point) { // probably wrong (untested!)
+            this.rotors[1].position -= 1
+            this.rotors[1].position == -1 && (this.rotors[1].position = 25)
+            this.rotors[0].position -= 1
+            this.rotors[0].position == -1 && (this.rotors[0].position = 25)
+        }
+        this.rotors[2].position -= 1
+        this.rotors[2].position == -1 && (this.rotors[2].position = 25)
     }
 
     set_letter_idx(letter_idx) {

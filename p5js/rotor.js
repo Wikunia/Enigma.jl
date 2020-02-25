@@ -1,31 +1,43 @@
 class Rotor {
-    constructor(enigma, order, rotor_nr, position, step_size) {
+    constructor(enigma, order, nr, position, step_size) {
         this.enigma = enigma;
         this.step_size = step_size;
         this.width = 170;
         this.order = order;
         this.rev_order = [3,2,1][order-1];
-        this.rotor_nr = rotor_nr;
         this.right_idx = -1;
         this.left_idx_bw = -1;
-        this.last_position = position;
-        this.position = position;
-        let mappings = [
+        this.set_position(position);
+        this.mappings = [
             [5, 11, 13, 6, 12, 7, 4, 17, 22, 26, 14, 20, 15, 23, 25, 8, 24, 21, 19, 16, 1, 9, 2, 18, 3, 10],
             [1, 10, 4, 11, 19, 9, 18, 21, 24, 2, 12, 8, 23, 20, 13, 3, 17, 7, 26, 14, 16, 25, 6, 22, 15, 5],
             [2, 4, 6, 8, 10, 12, 3, 16, 18, 20, 24, 22, 26, 14, 25, 5, 9, 23, 7, 1, 11, 13, 21, 19, 17, 15],
             [5, 19, 15, 22, 16, 26, 10, 1, 25, 17, 21, 9, 18, 8, 24, 12, 14, 6, 20, 7, 11, 4, 3, 13, 23, 2],
             [22, 26, 2, 18, 7, 9, 20, 25, 21, 16, 19, 4, 14, 8, 12, 24, 1, 23, 13, 10, 17, 15, 6, 5, 3, 11]
         ];
-        let rotation_points = [18, 6, 23, 11, 1];
-        this.rotation_point = rotation_points[this.rotor_nr-1]-1;
-        this.mapping = mappings[this.rotor_nr-1].map(i=>i-1);
-        this.mapping_bw = this.get_backward_mapping();
+        let rotor_names = ["I","II","III","IV","V"]
+        this.name = "Rotor "+rotor_names[nr-1];
 
+        this.rotation_points = [18, 6, 23, 11, 1];
+        this.set_type(nr);
+    
         this.letter_box_size = 35;
-        this.left = width-300-this.rev_order*(80+this.width);
+        this.left = width-250-this.rev_order*(80+this.width);
         this.top = 60;
         this.bottom = this.top+this.letter_box_size*26;
+    }
+
+    set_type(nr) {
+        this.nr = nr;
+        this.rotation_point = this.rotation_points[nr-1]-1;
+        this.mapping = this.mappings[nr-1].map(i=>i-1);
+        this.mapping_bw = this.get_backward_mapping();
+    }
+
+    set_position(position, based=0) {
+        position -= based;
+        this.position = position;
+        this.last_position = position;
     }
 
     get_backward_mapping() {
@@ -37,12 +49,16 @@ class Rotor {
     }
 
     show() {
-        fill(200);
         let letter_box_size = this.letter_box_size;
         let left = this.left;
         let top = this.top;
         let bottom = this.bottom;
-
+        textSize(30);
+        stroke(0);
+        fill(0);
+        text(this.name, left+100-this.name.length*10, top-10);
+        
+        fill(200);
         rect(left, top, this.width, letter_box_size*26);
         for (let i = 0; i < 26; i++) {
             this.enigma.plot_box_and_letter_right(left, this.width, bottom, letter_box_size, i, this.position, false);
@@ -94,8 +110,9 @@ class Rotor {
     rotate(min_t, t) {
         if (this.position == this.last_position)
             return
-        if (t > min_t + this.step_size)
+        if (t >= min_t + this.step_size)
             return
+
         let letter_box_size = this.letter_box_size;
         let left = this.left;
         let top = this.top;

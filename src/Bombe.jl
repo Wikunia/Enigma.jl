@@ -410,7 +410,6 @@ function get_possible_positions(bombe::BombeMachine)
     possible_positions = []
     hint = bombe.hint
     secret = bombe.secret
-    println("bombe.hint_positions: ", bombe.hint_positions)
     for p in bombe.hint_positions
         possible = true
         for i=0:length(hint)-1
