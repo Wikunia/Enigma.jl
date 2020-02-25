@@ -10,6 +10,7 @@ makedocs(
         "Home" => "index.md",
         "Tutorial" => "tutorial.md",
         "How-To" => "how_to.md",
+        "P5js visualization" => "p5js.md",
         "Explanation" => "explanation.md",
         "Reference" => "reference.md",
     ]
