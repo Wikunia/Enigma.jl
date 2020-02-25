@@ -140,6 +140,7 @@ function run_cracking(bombe::BombeMachine; log=true)
     sizehint!(backtrack_vec, 100000)
     push!(backtrack_vec, BackTrackObj(0, 0, Tuple[]))
     counter_mem = zeros(Int, 26)   
+    rejected_plugs = zeros(Bool, (26,26))
     for p in possible_positions
         log && println("Try $hint at position $p")
         for ukw in bombe.ukw
@@ -159,7 +160,7 @@ function run_cracking(bombe::BombeMachine; log=true)
                     while true
                         b_id = get_next_backtrack_id(backtrack_vec, b_id+1, back_len)
                         if b_id !== nothing
-                            back_len = one_deduction_step!(bombe, enigma, r1p, r2p, r3p, possibilities, deduced, changed, backtrack_vec, back_len, b_id, secret, hint, p, counter_mem)
+                            back_len = one_deduction_step!(bombe, enigma, r1p, r2p, r3p, possibilities, deduced, rejected_plugs, changed, backtrack_vec, back_len, b_id, secret, hint, p, counter_mem)
                         else 
                             break
                         end
@@ -296,8 +297,9 @@ function add_all_undeducable_combinations!(possibilities, combinations, changed)
     return
 end
 
-function one_deduction_step!(bombe::BombeMachine, enigma::EnigmaMachine, r1p, r2p, r3p, possibilities::Vector{Vector{Tuple{Int,Int}}}, deduced, changed::Vector{Bool}, backtrack_vec::Vector{BackTrackObj}, back_len, backtrack_id, secret, hint, position, counter_mem)
+function one_deduction_step!(bombe::BombeMachine, enigma::EnigmaMachine, r1p, r2p, r3p, possibilities::Vector{Vector{Tuple{Int,Int}}}, deduced, rejected_plugs, changed::Vector{Bool}, backtrack_vec::Vector{BackTrackObj}, back_len, backtrack_id, secret, hint, position, counter_mem)
     set_plugboard_to_deduced!(enigma, changed, backtrack_vec[backtrack_id].deduced)
+    rejected_plugs .= false
 
     # pick letter index to check (one which is used most often in the possible range)
     # either in the secret message or in the hint 
@@ -361,8 +363,10 @@ function one_deduction_step!(bombe::BombeMachine, enigma::EnigmaMachine, r1p, r2
             result_idx = Enigma.encode_single_idx_to_idx(enigma, check_letter)
             
             # make deduction and check new plug guess if wrong
-            if !deduce_plugboard!(enigma, changed, result_idx, matching_letter)
+            if !deduce_plugboard!(enigma, changed, result_idx, matching_letter) || rejected_plugs[result_idx, matching_letter]
                 # can't be possible => reset plugboard
+                rejected_plugs[result_idx, matching_letter] = true
+                rejected_plugs[matching_letter, result_idx] = true
                 set_plugboard_to_deduced!(enigma, changed, backtrack_vec[backtrack_id].deduced)
                 is_possible = false
                 break
@@ -410,7 +414,6 @@ function get_possible_positions(bombe::BombeMachine)
     possible_positions = []
     hint = bombe.hint
     secret = bombe.secret
-    println("bombe.hint_positions: ", bombe.hint_positions)
     for p in bombe.hint_positions
         possible = true
         for i=0:length(hint)-1

@@ -3,10 +3,10 @@ class Enigma {
         this.step_size = step_size;
         this.plugboard = new Plugboard(this, step_size);
         this.rotors = [];
-        this.rotors.push(new Rotor(this, 1,1, 25, step_size));
-        this.rotors.push(new Rotor(this, 2,4, 1, step_size));
-        this.rotors.push(new Rotor(this, 3,3, 3, step_size));
-        this.ukw = new UKW(this, 2, step_size);
+        this.rotors.push(new Rotor(this, 1,1, 1, step_size));
+        this.rotors.push(new Rotor(this, 2,2, 1, step_size));
+        this.rotors.push(new Rotor(this, 3,3, 1, step_size));
+        this.ukw = new UKW(this, 1, step_size);
     }
     show() {
         this.plugboard.show();
@@ -14,6 +14,25 @@ class Enigma {
             this.rotors[i].show();
         }
         this.ukw.show();
+    }
+
+    set_rotors(a,b,c) {
+        this.rotors[0].set_type(a);
+        this.rotors[1].set_type(b);
+        this.rotors[2].set_type(c);
+    }
+
+    set_rotor_positions(a,b,c, based) {
+        if(typeof based == undefined) {
+            based = 0;  
+        }
+        this.rotors[0].set_position(a, based);
+        this.rotors[1].set_position(b, based);
+        this.rotors[2].set_position(c, based);
+    }
+
+    set_ukw(a) {
+        
     }
 
     set_plugboard(str) {

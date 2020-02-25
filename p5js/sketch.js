@@ -52,12 +52,7 @@ function setup() {
     text("Step size: ", 10, 220)
     rect(10, 235, 190, 20);
     enigma.show();
-    enigma.plot_box_and_letter_left(enigma.rotors[0].left, enigma.rotors[0].bottom, 35, 23, 25, true, 0);
-    enigma.plot_box_and_letter_left(enigma.rotors[1].left, enigma.rotors[1].bottom, 35, 25, 1, true, 0);
-    enigma.plot_box_and_letter_right(enigma.rotors[1].left, enigma.rotors[1].width, enigma.rotors[1].bottom, 35, 18, 1, true, 0);
-    enigma.plot_box_and_letter_left(enigma.rotors[2].left, enigma.rotors[2].bottom, 35, 25, 3, true, 0);
-    enigma.plot_box_and_letter_right(enigma.rotors[2].left, enigma.rotors[2].width, enigma.rotors[2].bottom, 35, 4, 3, true, 0);
-    // enigma.plot_box_and_letter_left()100
+    // enigma.plot_box_and_letter_left()
     if (i == 0) {
       last_step_size = step_size_slider.value();
       enigma.change_step_size(step_size_slider.value());
