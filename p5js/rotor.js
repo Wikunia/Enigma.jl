@@ -22,26 +22,20 @@ class Rotor {
         this.set_type(nr);
     
         this.letter_box_size = 35;
-        this.left = width-300-this.rev_order*(80+this.width);
+        this.left = width-250-this.rev_order*(80+this.width);
         this.top = 60;
         this.bottom = this.top+this.letter_box_size*26;
     }
 
     set_type(nr) {
-        console.log("nr: ", nr)
         this.nr = nr;
         this.rotation_point = this.rotation_points[nr-1]-1;
         this.mapping = this.mappings[nr-1].map(i=>i-1);
         this.mapping_bw = this.get_backward_mapping();
     }
 
-    set_position(position, based) {
-        if(typeof based == undefined) {
-            based = 0;  
-        }
-        if (based != 0) {
-            position -= based;
-        }
+    set_position(position, based=0) {
+        position -= based;
         this.position = position;
         this.last_position = position;
     }
@@ -62,7 +56,7 @@ class Rotor {
         textSize(30);
         stroke(0);
         fill(0);
-        text(this.name, left+30, top-10);
+        text(this.name, left+100-this.name.length*10, top-10);
         
         fill(200);
         rect(left, top, this.width, letter_box_size*26);

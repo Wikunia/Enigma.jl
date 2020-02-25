@@ -11,7 +11,7 @@ class UKW {
         ];
         this.set_type(ukw);
         this.letter_box_size = 35;
-        this.left = width-300-4*(80+this.width);
+        this.left = width-250-4*(80+this.width);
         this.top = 60;
         this.bottom = this.top+this.letter_box_size*26;
         let names = ["A", "B", "C"]

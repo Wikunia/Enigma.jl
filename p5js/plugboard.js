@@ -5,12 +5,13 @@ class Plugboard {
         this.right_idx = -1;
         this.left_idx_bw = -1;
         this.letter_box_size = 35;
-        this.left = width-300;
+        this.left = width-250;
         this.top = 60;
         this.bottom = this.top+this.letter_box_size*26;
         this.step_size = step_size;
         this.enigma = enigma;
         this.name = "Plugboard";
+        this.setting_str = "";
     }
     show() {
         
@@ -61,8 +62,9 @@ class Plugboard {
                 let j = part[1].charCodeAt(0)-65;
                 this.mapping[i] = j;
                 this.mapping[j] = i;
-             }
+            }
         }
+        this.setting_str = str;
     }
 
     get_result(backwards) {

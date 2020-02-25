@@ -22,17 +22,14 @@ class Enigma {
         this.rotors[2].set_type(c);
     }
 
-    set_rotor_positions(a,b,c, based) {
-        if(typeof based == undefined) {
-            based = 0;  
-        }
+    set_rotor_positions(a,b,c, based=0) {
         this.rotors[0].set_position(a, based);
         this.rotors[1].set_position(b, based);
         this.rotors[2].set_position(c, based);
     }
 
-    set_ukw(a) {
-        
+    set_ukw(ukw) {
+        this.ukw.set_type(ukw);
     }
 
     set_plugboard(str) {
@@ -48,7 +45,7 @@ class Enigma {
         this.ukw.step_size = val*2;
     }
 
-    update(t) {
+    update(t, stop=false) {
         let step = 0
         for (let r=0; r <= 2; r++) {
             this.rotors[r].rotate(step, t);
@@ -66,7 +63,13 @@ class Enigma {
             this.rotors[r-1].update(step, t, true);
             step += this.step_size;
         }
-        this.plugboard.update(step, t, true);
+        if (!stop) {
+            this.plugboard.update(step, t, true);
+        } 
+        if (stop && t >= step) {
+            return false;
+        }
+        return true;
     }
 
     step_rotors() {
@@ -90,6 +93,29 @@ class Enigma {
             this.rotors[0].position += 1
             this.rotors[0].position == 26 && (this.rotors[0].position = 0)
         }
+    }
+
+    step_rotors_bw() {
+        //  right most rotor
+        for (let r=0; r <= 2; r++) {
+            this.rotors[r].last_position = this.rotors[r].position;
+        }
+
+        if (this.rotors[2].position == this.rotors[2].rotation_point) {
+            if (this.rotors[1].position == this.rotors[1].rotation_point) {
+                this.rotors[0].position -= 1
+                this.rotors[0].position == -1 && (this.rotors[0].position = 25)
+            }
+            this.rotors[1].position -= 1
+            this.rotors[1].position == -1 && (this.rotors[1].position = 25)   
+        } else if (this.rotors[1].position+1 == this.rotors[1].rotation_point) { // probably wrong (untested!)
+            this.rotors[1].position -= 1
+            this.rotors[1].position == -1 && (this.rotors[1].position = 25)
+            this.rotors[0].position -= 1
+            this.rotors[0].position == -1 && (this.rotors[0].position = 25)
+        }
+        this.rotors[2].position -= 1
+        this.rotors[2].position == -1 && (this.rotors[2].position = 25)
     }
 
     set_letter_idx(letter_idx) {

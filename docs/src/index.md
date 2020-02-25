@@ -31,8 +31,11 @@ This documentation is done in several parts.
 - You just have some `How to` questions? -> [How to guide](how_to.md)
 - You want to understand how it works deep down? Maybe improve it ;) -
   -  [Explanation](explanation.md)
-  -  And check out my blog post about it [Enigma and Bombe](https://opensourc.es/blog/enigma-and-bombe)
+  -  Check out my blog post about it [Enigma and Bombe](https://opensourc.es/blog/enigma-and-bombe)
+  -  Have a look at my video [Enigma: Endless possibilities is not enough](https://youtu.be/4cf7dc_8u44)
 - Gimme the code documentation directly! The [reference](reference.md) section got you covered.
+- You've seen the visualization I used in one of my videos?
+  - [How to use the visualization](p5js.md)
 
 If you have some questions please feel free to ask me by making an [issue](https://github.com/Wikunia/Enigma.jl/issues).
 

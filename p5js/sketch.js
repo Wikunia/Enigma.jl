@@ -15,8 +15,10 @@ function setup() {
     last_step_size = step_size_slider.value();
     
     enigma = new Enigma(step_size_slider.value());
+    enigma.set_rotors(1, 3, 4);
+    enigma.set_rotor_positions(10, 9, 8, based=1);
+    enigma.set_ukw(3);
     enigma.set_plugboard("AL CX DP FU GO HI JN MY VQ RW");
-    // enigma.set_plugboard("");
     letter = -1;
   }
 
