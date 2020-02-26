@@ -31,10 +31,6 @@ UKW C   F V P J I A O Y E D R Z X W G C T K U Q S B N M H L
 
 Additionally you're be able to crack Enigma codes if you have an encrypted message and some kind of hint like `Wetterbericht` is part of the first 100 characters of the message. 
 
-## Video about this project
-
-[![Enigma Video](https://img.youtube.com/vi/4cf7dc_8u44/0.jpg)](https://www.youtube.com/watch?v=4cf7dc_8u44)
-
 ## Installation
 You can install this julia package using 
 `] add https://github.com/Wikunia/Enigma.jl` or if you want to change code you might want to use
@@ -141,3 +137,8 @@ enable_ambiguous!(bombe)
 ```
 
 and then run `enigmas = run_cracking(bombe; log=false);` again.
+
+## Videos about this project
+
+[![Enigma Video](https://img.youtube.com/vi/4cf7dc_8u44/0.jpg)](https://www.youtube.com/watch?v=4cf7dc_8u44)
+[![Bombe Video](https://img.youtube.com/vi/bRT5YKez8m4/0.jpg)](https://youtu.be/bRT5YKez8m4)
