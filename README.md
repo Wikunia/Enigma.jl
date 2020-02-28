@@ -7,7 +7,7 @@
 
 You'll be able to decode and encode messages like using the [Enigma Machine](https://en.wikipedia.org/wiki/Enigma_machine)
 with this package.
-Even more awesome you can try cracking the code by given hints ;)
+Even more awesome you can try breaking Enigma ciphers using hints ;)
 
 Currently there are five different rotors:
 
@@ -33,10 +33,8 @@ Additionally you're be able to crack Enigma codes if you have an encrypted messa
 
 ## Installation
 You can install this julia package using 
-`] add https://github.com/Wikunia/Enigma.jl` or if you want to change code you might want to use
-`] dev https://github.com/Wikunia/Enigma.jl`.
-
-If everything goes well I will make a request to make this a julia package but that needs a little bit more work.
+`] add Enigma` or if you want to change code you might want to use
+`] dev Enigma`.
 
 ## Simple usage 
 
