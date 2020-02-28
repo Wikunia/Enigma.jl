@@ -10,17 +10,16 @@ Not supported
 
 ## Installation
 
-It's currently not an official Julia package but I intend to make it one. Therefore you currently need to
-install it via the url.
+Enigma.jl is an official Julia package so you can easily install it using:
 
 ```
-] add https://github.com/Wikunia/Enigma.jl
+] add Enigma
 ```
 
 Or if you want to hack a bit probably develop it
 
 ```
-] dev https://github.com/Wikunia/Enigma.jl
+] dev Enigma
 ```
 
 **Info:** `]` is used in the Julia REPL to get into package mode.
