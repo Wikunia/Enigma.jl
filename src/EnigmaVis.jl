@@ -56,25 +56,25 @@ function plot_ukw(plt, ukw)
 
     plot!(plt, [order*width+2.5], [27], annotation=(order*width+2.5, 27, "UKW $(ukw.name)"))
     plot!(plt, rectangle(5,26, order*width, 0), color=:gray)
-    
+
     for i=1:26
         letter = Char(i+64)
         plot!(plt, rectangle(1,1, order*width-1, i-1), color=:darkgray)
         plot!(plt, [order*width-1], [i-1], annotation=(order*width-0.5, i-0.5, letter))
-        
+
         plot!(plt, rectangle(1,1, order*width+5, i-1), color=:darkgray)
         plot!(plt, [order*width+5], [i-1], annotation=(order*width+5.5, i-0.5, letter))
 
         # left lower/upper -
         plot!(plt, [order*width,order*width+0.3], [i-0.6, i-0.6], color=:black)
         plot!(plt, [order*width,order*width+0.3], [i-0.3, i-0.3], color=:black)
-        
+
         # right lower -
         plot!(plt, [order*width+4.7,order*width+5], [i-0.6, i-0.6], color=:black)
 
         # right upper -
         plot!(plt, [order*width+4.7,order*width+5], [i-0.3, i-0.3], color=:black)
-        
+
         y_pos_from = i-0.6
         y_pos_to = ukw.mapping[i]-0.6
         # right ro left
@@ -87,7 +87,7 @@ function plot_ukw(plt, ukw)
 end
 
 function update_plugboard_plot(plt, plugboard; right_idx=nothing, left_idx=nothing, connecting=false, connected=false)
-    @assert right_idx !== nothing || left_idx !== nothing 
+    @assert right_idx !== nothing || left_idx !== nothing
     order = 4
     width = 7.5
 
@@ -107,13 +107,13 @@ function update_plugboard_plot(plt, plugboard; right_idx=nothing, left_idx=nothi
     connected && (connecting = true)
     for i in (connected_to, right_idx)
         letter = Char(i+64)
-        
+
         # left box and letter
         if (connected || finished) && connected_to == i
             plot!(plt, rectangle(1,1, order*width-1, i-1), color=:yellow)
             plot!(plt, [order*width-1], [i-1], annotation=(order*width-0.5, i-0.5, letter))
         end
-        # right box and letter 
+        # right box and letter
         if right_idx == i && finished && connected
             plot!(plt, rectangle(1,1, order*width+5, i-1), color=:green)
             plot!(plt, [order*width+5], [i-1], annotation=(order*width+5.5, i-0.5, letter))
@@ -133,7 +133,7 @@ function update_plugboard_plot(plt, plugboard; right_idx=nothing, left_idx=nothi
             plot!(plt, [order*width,order*width+0.3], [i-0.5, i-0.5], color=:yellow)
         end
     end
-    return plt 
+    return plt
 end
 
 function plot_plugboard(plt, plugboard)
@@ -147,22 +147,22 @@ function plot_plugboard(plt, plugboard)
         letter = Char(i+64)
         plot!(plt, rectangle(1,1, order*width-1, i-1), color=:darkgray)
         plot!(plt, [order*width-1], [i-1], annotation=(order*width-0.5, i-0.5, letter))
- 
+
         plot!(plt, rectangle(1,1, order*width+5, i-1), color=:darkgray)
         plot!(plt, [order*width+5], [i-1], annotation=(order*width+5.5, i-0.5, letter))
-        
+
         y_pos_from = i-0.5
         y_pos_to = plugboard[i]-0.5
         plot!(plt, [order*width+4.7, order*width+0.3], [y_pos_from, y_pos_to], color=:black)
         plot!(plt, [order*width+4.7,order*width+5], [i-0.5, i-0.5], color=:black)
-        
+
         plot!(plt, [order*width,order*width+0.3], [i-0.5, i-0.5], color=:black)
     end
     return plt
 end
 
 function update_rotor_plot(plt::Plots.Plot, rotor::Rotor; right_idx = nothing, left_idx = nothing, connecting=false, connected=false)
-    @assert right_idx !== nothing || left_idx !== nothing 
+    @assert right_idx !== nothing || left_idx !== nothing
 
     order = rotor.order
     width = 7.5
@@ -197,12 +197,12 @@ function update_rotor_plot(plt::Plots.Plot, rotor::Rotor; right_idx = nothing, l
             plot!(plt, [order*width+5], [i-1], annotation=(order*width+5.5, i-0.5, letter))
         end
 
-        # left side small - 
+        # left side small -
         if left_idx == i
             plot!(plt, [order*width,order*width+0.3], [i-0.5, i-0.5], color=:yellow)
         end
 
-        # left side small - 
+        # left side small -
         if right_idx == i
             plot!(plt, [order*width+4.7,order*width+5], [i-0.5, i-0.5], color=:yellow)
         end
@@ -242,10 +242,10 @@ function plot_rotor(plt::Plots.Plot, rotor::Rotor)
         plot!(plt, rectangle(1,1, order*width+5, i-1), color=:darkgray)
         plot!(plt, [order*width+5], [i-1], annotation=(order*width+5.5, i-0.5, letter))
 
-        # left side small - 
+        # left side small -
         plot!(plt, [order*width,order*width+0.3], [i-0.5, i-0.5], color=:black)
 
-        # left side small - 
+        # left side small -
         plot!(plt, [order*width+4.7,order*width+5], [i-0.5, i-0.5], color=:black)
     end
     # plot connections
@@ -286,7 +286,7 @@ function get_enigma_decode_plots!(enigma::EnigmaMachine, letter::Char; pngs=fals
     update_plugboard_plot(plt, enigma.plugboard; right_idx=letter_idx, connected=true)
     push!(plts, deepcopy(plt))
     pngs && png(plt, "visualizations/plugboard_in")
-    
+
     plugboard_out_idx = enigma.plugboard[letter_idx]
     right_idx = plugboard_out_idx
     for r=3:-1:1
@@ -331,7 +331,7 @@ end
 function animate_plots(plts::Vector{Plots.Plot}, fname::String; end_extra=5)
     anim = Animation()
     for plt in plts
-        plot(plt) 
+        plot(plt)
         frame(anim)
     end
     for i=1:end_extra
