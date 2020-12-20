@@ -5,3 +5,4 @@ test/current/
 visualizations
 docs/build/
 presentation/
+src/EnigmaVis.jl
