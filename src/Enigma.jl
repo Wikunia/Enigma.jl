@@ -39,7 +39,7 @@ const possible_ukw = [
 ]
 
 const possible_rotors = [
-    Dict(:name => "I", 
+    Dict(:name => "I",
          :mapping => [05, 11, 13, 06, 12, 07, 04, 17, 22, 26, 14, 20, 15, 23, 25, 08, 24, 21, 19, 16, 01, 09, 02, 18, 03, 10],
          :rotation_point => 18),
     Dict(:name => "II",
@@ -74,7 +74,7 @@ end
 Creates an EnigmaMachine with the following setting:\n
 Rotor ids from left to right: r1, r2, r3\n
 r1=1 would be setting the left most rotor to the rotor I\n
-The reflector ( = ukw = Umkehrwalze) is 1,2,3 as well and correspond to the ukws A,B and C\n 
+The reflector ( = ukw = Umkehrwalze) is 1,2,3 as well and correspond to the ukws A,B and C\n
 Additionally the rotor positions can be set using p1,p2 and p3 for the three rotors\n
 Return the created EnigmaMachine
 """
@@ -148,8 +148,8 @@ function set_plugboard!(enigma::EnigmaMachine, setting::String)
         enigma.plugboard[i] = i
     end
     setting == "" && return
-    parts = split(setting, " ") 
-    for part in parts 
+    parts = split(setting, " ")
+    for part in parts
         from_letter, to_letter = part[1], part[2]
         from = Int(uppercase(from_letter))-64
         to = Int(uppercase(to_letter))-64
@@ -224,7 +224,7 @@ end
 
 If all chars in the string are uppercase letters (so no spaces) then `input_validation` can be set to false for a bit speed up.\n
 The default output consists of blocks of five letters. If you don't want the spaces you can set `output_style=false`.\n
-Return the string encoded with the enigma. 
+Return the string encoded with the enigma.
 """
 function encode!(enigma::EnigmaMachine, s::String; input_validation=true, output_style=:enigma)
     if input_validation
@@ -259,4 +259,4 @@ function enigma_styled_text(text::String)
 end
 
 export EnigmaMachine, encode!, decode!, set_rotors!, set_rotor_positions!, set_ukw!, set_plugboard!, enigma_styled_text
-end 
+end
