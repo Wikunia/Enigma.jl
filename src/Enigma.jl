@@ -20,6 +20,14 @@ mutable struct EnigmaMachine
     ukw             :: UKW
 end
 
+function Base.show(io::IO, EMs::Vector{EnigmaMachine})
+    Base.show(io, MIME"text/plain"(), EMs)
+end
+
+function Base.show(io::IO, EM::EnigmaMachine)
+    Base.show(io, MIME"text/plain"(), EM)
+    println("")
+end
 
 function Base.show(io::IO, mime::MIME"text/plain", EMs::Vector{EnigmaMachine})
     println(io, "$(length(EMs)) Enigma machine(s): ")

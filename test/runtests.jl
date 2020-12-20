@@ -11,7 +11,7 @@ using Test
 
         message = "This is an Enigma test"
         encoded = encode!(enigma, message)
-        
+
         # set rotor position again for decoding
         set_rotor_positions!(enigma, rp1,rp2,4)
         decoded = decode!(enigma, encoded)
@@ -26,7 +26,7 @@ using Test
 
         message = "This is an Enigma test"
         encoded = encode!(enigma, message)
-        
+
         # set rotor position again for decoding
         set_rotor_positions!(enigma, rp1,rp2,4)
         decoded = decode!(enigma, encoded)
@@ -51,7 +51,7 @@ end
 
         message = "The quick brown fox jumps over the lazy dog"
         encoded = encode!(enigma, message)
-        
+
         # set rotor position again for decoding
         set_rotor_positions!(enigma, rp1,9,10)
         decoded = decode!(enigma, encoded)
@@ -137,7 +137,7 @@ end
     enigmas = run_cracking(bombe; log=true)
     found = false
     correct_message = enigma_styled_text("This is a test message for testing the Bombe")
-    
+
     for enigma in enigmas
         encoded = encode!(enigma, crack_message)
         if encoded == correct_message
@@ -145,9 +145,11 @@ end
             break
         end
     end
+    show(enigmas[1:2])
+    show(enigmas[3])
     @test found === true
 
-    # different rotors and positions 
+    # different rotors and positions
     crack_message = "QRTUV RQMHR GTBJU NVXAN OPHTM BZAHZ YFKUL CRVRY MLTVW KRXIH EAWXJ "
     hint = "message"
     bombe = BombeMachine(crack_message, hint)
@@ -157,7 +159,7 @@ end
     enigmas = run_cracking(bombe; log=false)
     found = false
     correct_message = enigma_styled_text("A long long message with no real meaning but it is important to test")
-    
+
     for enigma in enigmas
         encoded = encode!(enigma, crack_message)
         if encoded == correct_message
@@ -167,7 +169,7 @@ end
     end
     @test found === true
 
-    
+
     # Try a larger set of possibilities
     crack_message = "HGHXI AGYEY NDIFW PRMDD QSMJG DCAKP FMIZL RVQIZ WRLJM "
     hint = "weatherreport"
@@ -180,7 +182,7 @@ end
     enigmas = run_cracking(bombe; log=false)
     found = false
     correct_message = enigma_styled_text("A Weatherreport It is very nice outside so be friendly")
-    
+
     for enigma in enigmas
         encoded = encode!(enigma, crack_message)
         if encoded == correct_message
