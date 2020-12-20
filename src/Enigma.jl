@@ -20,6 +20,30 @@ mutable struct EnigmaMachine
     ukw             :: UKW
 end
 
+
+function Base.show(io::IO, mime::MIME"text/plain", EMs::Vector{EnigmaMachine})
+    println(io, "$(length(EMs)) Enigma machine(s): ")
+    for EM in EMs
+        print(io, "- ")
+        show(io, mime, EM)
+        println("")
+    end
+end
+
+function Base.show(io::IO, ::MIME"text/plain", EM::EnigmaMachine)
+    rotors = "$(EM.rotors[1].name), $(EM.rotors[2].name), $(EM.rotors[3].name)"
+    positions = "$(EM.rotors[1].position) $(EM.rotors[2].position) $(EM.rotors[3].position)"
+    ukw = "$(EM.ukw.name)"
+    plugboard_str = ""
+    az = collect('A':'Z')
+    for i in 1:26
+        if EM.plugboard[i] > i
+            plugboard_str *= "$(az[i])$(az[EM.plugboard[i]]) "
+        end
+    end
+    print(io, "$rotors | $positions | UKW: $ukw | $plugboard_str")
+end
+
 include("Bombe.jl")
 include("EnigmaVis.jl")
 
